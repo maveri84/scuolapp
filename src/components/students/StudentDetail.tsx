@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -574,6 +573,34 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                         <div className="space-y-2">
                           <Label htmlFor="disabilityType">Tipologia Disabilità</Label>
                           <Input id="disabilityType" placeholder="Specificare la tipologia di disabilità" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="disabilityClause">Articolo di Riferimento</Label>
+                          <Select>
+                            <SelectTrigger id="disabilityClause">
+                              <SelectValue placeholder="Seleziona" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="comma1">Comma 1</SelectItem>
+                              <SelectItem value="comma3">Comma 3</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="law10492ExpiryDate">Scadenza Certificazione 104/92</Label>
+                          <Input 
+                            id="law10492ExpiryDate" 
+                            type="date" 
+                            placeholder="Data di scadenza"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="otherCertificationsExpiry">Scadenza Altre Certificazioni</Label>
+                          <Input 
+                            id="otherCertificationsExpiry" 
+                            type="date" 
+                            placeholder="Data di scadenza"
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label>Documentazione</Label>
