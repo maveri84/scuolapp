@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -134,8 +133,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
     gender: "M",
     birthPlace: student.placeOfBirth
   });
-  // Fix the type here - change from number to string
-  const [calculatedFiscalCode, setCalculatedFiscalCode] = useState<string>("");
+  const [calculatedFiscalCode, setCalculatedFiscalCode] = useState("");
   const [delegates, setDelegates] = useState(student.delegates);
   
   const handleFiscalCodeCalculation = () => {
@@ -429,7 +427,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                         <Input 
                           id={`delegate-relationship-${index}`} 
                           defaultValue={delegate.relationship}
-                          placeholder="Es: Nonno, Zio, Babysitter" 
+                          placeholder="Es: Nonna, Zio, Babysitter" 
                         />
                       </div>
                       <div className="space-y-2">

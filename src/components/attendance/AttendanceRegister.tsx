@@ -162,7 +162,7 @@ const AttendanceRegister = () => {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tutte le classi</SelectItem>
+              <SelectItem value="all">Tutte le classi</SelectItem>
               <SelectItem value="1A">1A</SelectItem>
               <SelectItem value="1B">1B</SelectItem>
               <SelectItem value="2A">2A</SelectItem>
@@ -179,7 +179,7 @@ const AttendanceRegister = () => {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tutti i tipi</SelectItem>
+              <SelectItem value="all">Tutti i tipi</SelectItem>
               <SelectItem value="absence">Assenze</SelectItem>
               <SelectItem value="late">Ritardi</SelectItem>
               <SelectItem value="early-exit">Uscite anticipate</SelectItem>
