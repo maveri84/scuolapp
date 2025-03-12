@@ -15,6 +15,7 @@ import {
   Users
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   open: boolean;
@@ -24,24 +25,32 @@ interface SidebarProps {
 interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
-  active?: boolean;
+  to: string;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, active }) => (
-  <li>
-    <Button
-      variant="ghost"
-      className={`w-full justify-start px-3 ${
-        active 
-          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
-          : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-      }`}
-    >
-      <span className="mr-3">{icon}</span>
-      <span>{label}</span>
-    </Button>
-  </li>
-);
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <li>
+      <Button
+        variant="ghost"
+        className={`w-full justify-start px-3 ${
+          isActive 
+            ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
+            : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+        }`}
+        asChild
+      >
+        <Link to={to}>
+          <span className="mr-3">{icon}</span>
+          <span>{label}</span>
+        </Link>
+      </Button>
+    </li>
+  );
+};
 
 const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   const isMobile = useIsMobile();
@@ -62,12 +71,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4">
-            <div className="flex items-center">
+            <Link to="/" className="flex items-center">
               <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold mr-2">
                 SR
               </div>
               <h2 className="font-semibold text-xl text-sidebar-foreground">Smart Registry</h2>
-            </div>
+            </Link>
             
             {isMobile && (
               <Button
@@ -86,14 +95,14 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
           <div className="flex-1 overflow-y-auto py-4 px-3">
             <nav>
               <ul className="space-y-1">
-                <SidebarItem icon={<HomeIcon className="h-5 w-5" />} label="Dashboard" active />
-                <SidebarItem icon={<UserCheck className="h-5 w-5" />} label="Presenze" />
-                <SidebarItem icon={<ClipboardList className="h-5 w-5" />} label="Valutazioni" />
-                <SidebarItem icon={<BookOpen className="h-5 w-5" />} label="Didattica" />
-                <SidebarItem icon={<FilePlus className="h-5 w-5" />} label="Compiti" />
-                <SidebarItem icon={<CalendarDays className="h-5 w-5" />} label="Calendario" />
-                <SidebarItem icon={<Mail className="h-5 w-5" />} label="Comunicazioni" />
-                <SidebarItem icon={<Users className="h-5 w-5" />} label="Classi" />
+                <SidebarItem icon={<HomeIcon className="h-5 w-5" />} label="Dashboard" to="/" />
+                <SidebarItem icon={<UserCheck className="h-5 w-5" />} label="Presenze" to="/attendance" />
+                <SidebarItem icon={<ClipboardList className="h-5 w-5" />} label="Valutazioni" to="/grades" />
+                <SidebarItem icon={<BookOpen className="h-5 w-5" />} label="Didattica" to="/teaching" />
+                <SidebarItem icon={<FilePlus className="h-5 w-5" />} label="Compiti" to="/assignments" />
+                <SidebarItem icon={<CalendarDays className="h-5 w-5" />} label="Calendario" to="/calendar" />
+                <SidebarItem icon={<Mail className="h-5 w-5" />} label="Comunicazioni" to="/messages" />
+                <SidebarItem icon={<Users className="h-5 w-5" />} label="Classi" to="/classes" />
               </ul>
             </nav>
           </div>
@@ -102,9 +111,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
             <Button
               variant="ghost"
               className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+              asChild
             >
-              <Settings className="h-5 w-5 mr-3" />
-              <span>Impostazioni</span>
+              <Link to="/settings">
+                <Settings className="h-5 w-5 mr-3" />
+                <span>Impostazioni</span>
+              </Link>
             </Button>
           </div>
         </div>
