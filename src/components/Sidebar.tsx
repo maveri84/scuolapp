@@ -12,7 +12,8 @@ import {
   Mail, 
   Settings, 
   UserCheck, 
-  Users
+  Users,
+  Shield
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
@@ -26,11 +27,22 @@ interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
   to: string;
+  isAdmin?: boolean;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to }) => {
+// Simulating role-based access control
+const userRoles = {
+  isAdmin: true // In a real app, this would come from auth
+};
+
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, isAdmin = false }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
+  
+  // Hide admin-only items if user is not admin
+  if (isAdmin && !userRoles.isAdmin) {
+    return null;
+  }
 
   return (
     <li>
@@ -108,16 +120,19 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
           </div>
           
           <div className="p-4">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-              asChild
-            >
-              <Link to="/settings">
-                <Settings className="h-5 w-5 mr-3" />
-                <span>Impostazioni</span>
-              </Link>
-            </Button>
+            <ul className="space-y-1">
+              <SidebarItem 
+                icon={<Shield className="h-5 w-5" />} 
+                label="Amministrazione" 
+                to="/settings" 
+                isAdmin={true}
+              />
+              <SidebarItem 
+                icon={<Settings className="h-5 w-5" />} 
+                label="Impostazioni" 
+                to="/settings"
+              />
+            </ul>
           </div>
         </div>
       </aside>

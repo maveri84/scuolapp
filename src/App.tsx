@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Attendance from "./pages/Attendance";
 import Grades from "./pages/Grades";
 import Teaching from "./pages/Teaching";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/grades" element={<Grades />} />
           <Route path="/teaching" element={<Teaching />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
