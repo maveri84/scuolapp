@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -96,7 +95,7 @@ const mockStudentDetail = {
   notes: "Partecipa attivamente alle attività extracurriculari. Rappresentante di classe per l'anno 2023-2024."
 };
 
-const calculateFiscalCode = (firstName: string, lastName: string, birthDate: string, gender: string, birthPlace: string) => {
+const calculateFiscalCode = (firstName: string, lastName: string, birthDate: string, gender: string, birthPlace: string): string => {
   const birthDateComponents = birthDate.split('-');
   if (birthDateComponents.length !== 3) {
     return "Invalid date format (use YYYY-MM-DD)";
@@ -134,7 +133,6 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
     gender: "M",
     birthPlace: student.placeOfBirth
   });
-  // Fix the type error by explicitly typing the state as string
   const [calculatedFiscalCode, setCalculatedFiscalCode] = useState<string>("");
   const [delegates, setDelegates] = useState(student.delegates);
   
