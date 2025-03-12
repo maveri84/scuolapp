@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -803,4 +804,104 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                   <Card className="border border-muted">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base">Certificato di Iscrizione</CardTitle>
-                      <CardDescription>Car
+                      <CardDescription>Caricato il 10/09/2023</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground">PDF, 0.8 MB</span>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">Visualizza</Button>
+                          <Button variant="outline" size="sm">Scarica</Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="fiscal-code" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Calcolo Codice Fiscale</CardTitle>
+              <CardDescription>Strumento per il calcolo e la verifica del codice fiscale</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-firstName">Nome</Label>
+                    <Input 
+                      id="fc-firstName"
+                      value={fiscalCodeInputs.firstName}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, firstName: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-lastName">Cognome</Label>
+                    <Input 
+                      id="fc-lastName"
+                      value={fiscalCodeInputs.lastName}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, lastName: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-birthDate">Data di Nascita</Label>
+                    <Input 
+                      id="fc-birthDate"
+                      type="date"
+                      value={fiscalCodeInputs.birthDate}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, birthDate: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-gender">Sesso</Label>
+                    <Select 
+                      value={fiscalCodeInputs.gender}
+                      onValueChange={(value) => setFiscalCodeInputs({...fiscalCodeInputs, gender: value})}
+                    >
+                      <SelectTrigger id="fc-gender">
+                        <SelectValue placeholder="Seleziona genere" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="M">Maschio</SelectItem>
+                        <SelectItem value="F">Femmina</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-birthPlace">Luogo di Nascita</Label>
+                    <Input 
+                      id="fc-birthPlace"
+                      value={fiscalCodeInputs.birthPlace}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, birthPlace: e.target.value})}
+                      placeholder="Inserisci il comune di nascita"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center space-y-4">
+                  <Button onClick={handleFiscalCodeCalculation} className="w-full md:w-auto">
+                    <Calculator className="mr-2 h-4 w-4" />
+                    Calcola Codice Fiscale
+                  </Button>
+                  
+                  {calculatedFiscalCode && (
+                    <div className="p-4 bg-muted/30 rounded-md w-full text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Risultato del calcolo:</p>
+                      <p className="text-xl font-mono font-bold">{calculatedFiscalCode}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default StudentDetail;
