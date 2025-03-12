@@ -10,6 +10,7 @@ import Attendance from "./pages/Attendance";
 import Grades from "./pages/Grades";
 import Teaching from "./pages/Teaching";
 import Settings from "./pages/Settings";
+import Students from "./pages/Students";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/grades" element={<Grades />} />
           <Route path="/teaching" element={<Teaching />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/students" element={<Students />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
