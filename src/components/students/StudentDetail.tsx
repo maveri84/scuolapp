@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -133,7 +134,8 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
     gender: "M",
     birthPlace: student.placeOfBirth
   });
-  const [calculatedFiscalCode, setCalculatedFiscalCode] = useState("");
+  // Fix the type error by explicitly typing the state as string
+  const [calculatedFiscalCode, setCalculatedFiscalCode] = useState<string>("");
   const [delegates, setDelegates] = useState(student.delegates);
   
   const handleFiscalCodeCalculation = () => {
