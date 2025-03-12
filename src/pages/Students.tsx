@@ -5,17 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Search, UserPlus, FileText, Users } from "lucide-react";
+import { Search, UserPlus, FileText, Users, Upload } from "lucide-react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import StudentsList from "@/components/students/StudentsList";
 import StudentDetail from "@/components/students/StudentDetail";
+import ImportStudentsModal from "@/components/students/ImportStudentsModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 const Students = () => {
   const [selectedTab, setSelectedTab] = useState("list");
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClass, setSelectedClass] = useState<string | undefined>(undefined);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const handleStudentSelect = (studentId: string) => {
     setSelectedStudent(studentId);
@@ -31,6 +34,12 @@ const Students = () => {
     e.preventDefault();
     // In a real application, this would trigger a search with the query and selected class
     console.log("Searching for:", searchQuery, "in class:", selectedClass);
+  };
+
+  const handleImportStudents = (importedStudents: any[]) => {
+    // In a real app, you would process and save these students to your database
+    console.log("Imported students:", importedStudents);
+    toast.success(`Importati ${importedStudents.length} studenti con successo`);
   };
 
   return (
@@ -83,10 +92,16 @@ const Students = () => {
                 </SelectContent>
               </Select>
               
-              <Button>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Nuovo Studente
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={() => setShowImportModal(true)} variant="outline">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Importa
+                </Button>
+                <Button>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Nuovo Studente
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -110,6 +125,12 @@ const Students = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      <ImportStudentsModal 
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleImportStudents}
+      />
     </DashboardLayout>
   );
 };
