@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { 
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { 
   UserCircle, 
   Users, 
@@ -16,10 +24,13 @@ import {
   Phone, 
   MapPin, 
   Save,
-  UserCog
+  UserCog,
+  MessageCircle,
+  Heart,
+  AlertCircle,
+  Award
 } from "lucide-react";
 
-// Mock student data (would come from API in a real app)
 const mockStudentDetail = {
   id: "1",
   firstName: "Marco",
@@ -34,7 +45,6 @@ const mockStudentDetail = {
   email: "marco.rossi@student.example.com",
   phone: "333-1234567",
   
-  // Parents information
   fatherFirstName: "Giuseppe",
   fatherLastName: "Rossi",
   fatherEmail: "giuseppe.rossi@example.com",
@@ -47,7 +57,6 @@ const mockStudentDetail = {
   motherPhone: "333-9876543",
   motherOccupation: "Medico",
   
-  // Academic records
   enrollmentDate: "01/09/2022",
   previousSchool: "Scuola Media Manzoni",
   academicHistory: [
@@ -55,11 +64,9 @@ const mockStudentDetail = {
     { year: "2023-2024", class: "2A", finalGrade: "8.5/10", notes: "Miglioramento nelle lingue straniere" }
   ],
   
-  // Special needs or accommodations
   specialNeeds: false,
   accommodations: "",
   
-  // Additional notes
   notes: "Partecipa attivamente alle attività extracurriculari. Rappresentante di classe per l'anno 2023-2024."
 };
 
@@ -68,12 +75,11 @@ interface StudentDetailProps {
 }
 
 const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
-  const student = mockStudentDetail; // In a real app, you would fetch this based on studentId
+  const student = mockStudentDetail;
   
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Student basic info card */}
         <Card className="flex-1">
           <CardHeader className="bg-muted/50">
             <div className="flex items-center">
@@ -139,6 +145,14 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
           <TabsTrigger value="academic">
             <GraduationCap className="mr-2 h-4 w-4" />
             Curriculum Scolastico
+          </TabsTrigger>
+          <TabsTrigger value="special">
+            <Heart className="mr-2 h-4 w-4" />
+            Particolarità
+          </TabsTrigger>
+          <TabsTrigger value="communications">
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Comunicazioni
           </TabsTrigger>
           <TabsTrigger value="documents">
             <FileText className="mr-2 h-4 w-4" />
@@ -336,6 +350,142 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                     <Save className="mr-2 h-4 w-4" />
                     Salva Modifiche
                   </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="special" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Particolarità dello Studente</CardTitle>
+              <CardDescription>Informazioni specifiche e bisogni speciali</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="border border-muted p-4">
+                    <CardHeader className="p-0">
+                      <CardTitle className="text-base flex items-center">
+                        <AlertCircle className="h-4 w-4 mr-2 text-yellow-500" />
+                        Bisogni Educativi Speciali
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0 pt-4">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Tipologia BES</Label>
+                          <Input placeholder="Es: DSA, ADHD, etc." />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Documentazione</Label>
+                          <Input type="file" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Note Specifiche</Label>
+                          <textarea 
+                            className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            placeholder="Inserisci note specifiche..."
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border border-muted p-4">
+                    <CardHeader className="p-0">
+                      <CardTitle className="text-base flex items-center">
+                        <Award className="h-4 w-4 mr-2 text-blue-500" />
+                        Talenti e Attitudini
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0 pt-4">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Aree di Eccellenza</Label>
+                          <Input placeholder="Es: Matematica, Arte, Sport" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Attività Extracurriculari</Label>
+                          <Input placeholder="Es: Teatro, Coro, Sport" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Note sui Talenti</Label>
+                          <textarea 
+                            className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            placeholder="Descrivi i talenti e le attitudini dello studente..."
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Button className="w-full">
+                  <Save className="mr-2 h-4 w-4" />
+                  Salva Modifiche
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="communications" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Comunicazioni Dirette</CardTitle>
+              <CardDescription>Gestione delle comunicazioni con la famiglia</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <Button variant="outline">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Nuova Email
+                  </Button>
+                  <Button variant="outline">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Nuovo Messaggio
+                  </Button>
+                </div>
+
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Oggetto</TableHead>
+                        <TableHead>Stato</TableHead>
+                        <TableHead>Azioni</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>10/03/2024</TableCell>
+                        <TableCell>Email</TableCell>
+                        <TableCell>Convocazione Genitori</TableCell>
+                        <TableCell>Inviata</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>05/03/2024</TableCell>
+                        <TableCell>Messaggio</TableCell>
+                        <TableCell>Autorizzazione Gita</TableCell>
+                        <TableCell>Ricevuto</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             </CardContent>
