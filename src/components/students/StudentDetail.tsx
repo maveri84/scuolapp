@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { 
   Table,
   TableBody,
@@ -28,8 +31,17 @@ import {
   MessageCircle,
   Heart,
   AlertCircle,
-  Award
+  Award,
+  UserPlus,
+  Calculator,
+  Wallet,
+  BookCopy,
+  Pills,
+  AlarmClock,
+  UserCheck,
+  BadgeCheck
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const mockStudentDetail = {
   id: "1",
@@ -39,23 +51,36 @@ const mockStudentDetail = {
   class: "3A",
   dateOfBirth: "15/05/2008",
   placeOfBirth: "Milano",
+  fiscalCode: "RSSMRC08E15F205Z",
   address: "Via Roma 123",
   city: "Milano",
   postalCode: "20100",
   email: "marco.rossi@student.example.com",
   phone: "333-1234567",
   
+  disability: "Nessuna",
+  allergies: "Polline",
+  medications: "Nessuno",
+  attendsReligiousEducation: true,
+  
   fatherFirstName: "Giuseppe",
   fatherLastName: "Rossi",
+  fatherFiscalCode: "RSSGPP70A01F205Z", 
   fatherEmail: "giuseppe.rossi@example.com",
   fatherPhone: "333-7654321",
   fatherOccupation: "Ingegnere",
   
   motherFirstName: "Maria",
-  motherLastName: "Rossi",
+  motherLastName: "Bianchi",
+  motherFiscalCode: "BNCMRA75B41F205Y",
   motherEmail: "maria.rossi@example.com",
   motherPhone: "333-9876543",
   motherOccupation: "Medico",
+  
+  delegates: [
+    { name: "Anna Verdi", relationship: "Nonna", fiscalCode: "VRDNNA50C44F205X", phone: "333-1122334" },
+    { name: "Paolo Neri", relationship: "Zio", fiscalCode: "NREPLA65D23F205Y", phone: "333-5566778" }
+  ],
   
   enrollmentDate: "01/09/2022",
   previousSchool: "Scuola Media Manzoni",
@@ -70,12 +95,63 @@ const mockStudentDetail = {
   notes: "Partecipa attivamente alle attività extracurriculari. Rappresentante di classe per l'anno 2023-2024."
 };
 
+const calculateFiscalCode = (firstName: string, lastName: string, birthDate: string, gender: string, birthPlace: string) => {
+  const birthDateComponents = birthDate.split('-');
+  if (birthDateComponents.length !== 3) {
+    return "Invalid date format (use YYYY-MM-DD)";
+  }
+  
+  const lastNameConsonants = lastName.toUpperCase().replace(/[AEIOU]/g, '').substring(0, 3);
+  const firstNameConsonants = firstName.toUpperCase().replace(/[AEIOU]/g, '').substring(0, 3);
+  const year = birthDateComponents[0].substring(2, 4);
+  const monthCodes = 'ABCDEHLMPRST';
+  const month = monthCodes.charAt(parseInt(birthDateComponents[1], 10) - 1);
+  let day = parseInt(birthDateComponents[2], 10);
+  if (gender.toUpperCase() === 'F') {
+    day += 40;
+  }
+  day = day.toString().padStart(2, '0');
+  const birthPlaceCode = "F205";
+  
+  const code = lastNameConsonants + firstNameConsonants + year + month + day + birthPlaceCode;
+  
+  const lastChar = 'X';
+  
+  return code + lastChar;
+};
+
 interface StudentDetailProps {
   studentId: string;
 }
 
 const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
   const student = mockStudentDetail;
+  const [fiscalCodeInputs, setFiscalCodeInputs] = useState({
+    firstName: student.firstName,
+    lastName: student.lastName,
+    birthDate: "2008-05-15",
+    gender: "M",
+    birthPlace: student.placeOfBirth
+  });
+  const [calculatedFiscalCode, setCalculatedFiscalCode] = useState("");
+  const [delegates, setDelegates] = useState(student.delegates);
+  
+  const handleFiscalCodeCalculation = () => {
+    const result = calculateFiscalCode(
+      fiscalCodeInputs.firstName,
+      fiscalCodeInputs.lastName,
+      fiscalCodeInputs.birthDate,
+      fiscalCodeInputs.gender,
+      fiscalCodeInputs.birthPlace
+    );
+    setCalculatedFiscalCode(result);
+  };
+  
+  const addDelegate = () => {
+    if (delegates.length < 5) {
+      setDelegates([...delegates, { name: "", relationship: "", fiscalCode: "", phone: "" }]);
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -107,6 +183,13 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                 </dd>
               </div>
               <div>
+                <dt className="text-sm font-medium text-muted-foreground">Codice Fiscale</dt>
+                <dd className="mt-1 flex items-center">
+                  <BadgeCheck className="h-4 w-4 mr-2 text-muted-foreground" />
+                  {student.fiscalCode}
+                </dd>
+              </div>
+              <div>
                 <dt className="text-sm font-medium text-muted-foreground">Email</dt>
                 <dd className="mt-1 flex items-center">
                   <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -133,7 +216,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
       </div>
 
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="info">
             <UserCog className="mr-2 h-4 w-4" />
             Informazioni Personali
@@ -141,6 +224,10 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
           <TabsTrigger value="parents">
             <Users className="mr-2 h-4 w-4" />
             Genitori
+          </TabsTrigger>
+          <TabsTrigger value="delegates">
+            <UserCheck className="mr-2 h-4 w-4" />
+            Delegati
           </TabsTrigger>
           <TabsTrigger value="academic">
             <GraduationCap className="mr-2 h-4 w-4" />
@@ -157,6 +244,10 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
           <TabsTrigger value="documents">
             <FileText className="mr-2 h-4 w-4" />
             Documenti
+          </TabsTrigger>
+          <TabsTrigger value="fiscal-code">
+            <Calculator className="mr-2 h-4 w-4" />
+            Calcolo CF
           </TabsTrigger>
         </TabsList>
 
@@ -184,6 +275,10 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                   <div className="space-y-2">
                     <Label htmlFor="placeOfBirth">Luogo di Nascita</Label>
                     <Input id="placeOfBirth" defaultValue={student.placeOfBirth} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fiscalCode">Codice Fiscale</Label>
+                    <Input id="fiscalCode" defaultValue={student.fiscalCode} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
@@ -238,6 +333,10 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                       <Input id="fatherLastName" defaultValue={student.fatherLastName} />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="fatherFiscalCode">Codice Fiscale</Label>
+                      <Input id="fatherFiscalCode" defaultValue={student.fatherFiscalCode} />
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="fatherEmail">Email</Label>
                       <Input id="fatherEmail" type="email" defaultValue={student.fatherEmail} />
                     </div>
@@ -248,6 +347,10 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                     <div className="space-y-2">
                       <Label htmlFor="fatherOccupation">Occupazione</Label>
                       <Input id="fatherOccupation" defaultValue={student.fatherOccupation} />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="fatherAddress">Indirizzo (se diverso da quello dello studente)</Label>
+                      <Input id="fatherAddress" placeholder="Inserisci l'indirizzo completo" />
                     </div>
                   </div>
                 </div>
@@ -266,6 +369,10 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                       <Input id="motherLastName" defaultValue={student.motherLastName} />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="motherFiscalCode">Codice Fiscale</Label>
+                      <Input id="motherFiscalCode" defaultValue={student.motherFiscalCode} />
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="motherEmail">Email</Label>
                       <Input id="motherEmail" type="email" defaultValue={student.motherEmail} />
                     </div>
@@ -277,8 +384,78 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                       <Label htmlFor="motherOccupation">Occupazione</Label>
                       <Input id="motherOccupation" defaultValue={student.motherOccupation} />
                     </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="motherAddress">Indirizzo (se diverso da quello dello studente)</Label>
+                      <Input id="motherAddress" placeholder="Inserisci l'indirizzo completo" />
+                    </div>
                   </div>
                 </div>
+
+                <div className="flex justify-end mt-6">
+                  <Button>
+                    <Save className="mr-2 h-4 w-4" />
+                    Salva Modifiche
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="delegates" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Delegati per il Ritiro</CardTitle>
+              <CardDescription>Persone autorizzate al ritiro dello studente (massimo 5)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {delegates.map((delegate, index) => (
+                  <div key={index} className="p-4 border rounded-md">
+                    <h3 className="text-base font-medium mb-3">Delegato {index + 1}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`delegate-name-${index}`}>Nome e Cognome</Label>
+                        <Input 
+                          id={`delegate-name-${index}`} 
+                          defaultValue={delegate.name}
+                          placeholder="Nome completo del delegato" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`delegate-relationship-${index}`}>Relazione</Label>
+                        <Input 
+                          id={`delegate-relationship-${index}`} 
+                          defaultValue={delegate.relationship}
+                          placeholder="Es: Nonno, Zio, Babysitter" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`delegate-fiscal-code-${index}`}>Codice Fiscale</Label>
+                        <Input 
+                          id={`delegate-fiscal-code-${index}`} 
+                          defaultValue={delegate.fiscalCode}
+                          placeholder="Codice fiscale del delegato" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`delegate-phone-${index}`}>Telefono</Label>
+                        <Input 
+                          id={`delegate-phone-${index}`} 
+                          defaultValue={delegate.phone}
+                          placeholder="Numero di telefono" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {delegates.length < 5 && (
+                  <Button variant="outline" type="button" onClick={addDelegate} className="w-full">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Aggiungi Delegato
+                  </Button>
+                )}
 
                 <div className="flex justify-end mt-6">
                   <Button>
@@ -307,6 +484,13 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                   <div className="space-y-2">
                     <Label htmlFor="previousSchool">Scuola Precedente</Label>
                     <Input id="previousSchool" defaultValue={student.previousSchool} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="irc">Insegnamento Religione Cattolica (IRC)</Label>
+                    <div className="flex items-center space-x-2">
+                      <Switch id="irc" defaultChecked={student.attendsReligiousEducation} />
+                      <Label htmlFor="irc" className="mb-0">{student.attendsReligiousEducation ? 'Si avvale' : 'Non si avvale'}</Label>
+                    </div>
                   </div>
                 </div>
 
@@ -360,7 +544,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
           <Card>
             <CardHeader>
               <CardTitle>Particolarità dello Studente</CardTitle>
-              <CardDescription>Informazioni specifiche e bisogni speciali</CardDescription>
+              <CardDescription>Informazioni specifiche, bisogni speciali, allergie e farmaci</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -369,30 +553,93 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                     <CardHeader className="p-0">
                       <CardTitle className="text-base flex items-center">
                         <AlertCircle className="h-4 w-4 mr-2 text-yellow-500" />
-                        Bisogni Educativi Speciali
+                        Disabilità e Bisogni Educativi Speciali
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 pt-4">
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label>Tipologia BES</Label>
-                          <Input placeholder="Es: DSA, ADHD, etc." />
+                          <Label htmlFor="disability">Disabilità</Label>
+                          <Select defaultValue={student.disability === "Nessuna" ? "nessuna" : "presente"}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="nessuna">Nessuna</SelectItem>
+                              <SelectItem value="presente">Presente</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="disabilityType">Tipologia Disabilità</Label>
+                          <Input id="disabilityType" placeholder="Specificare la tipologia di disabilità" />
                         </div>
                         <div className="space-y-2">
                           <Label>Documentazione</Label>
                           <Input type="file" />
                         </div>
                         <div className="space-y-2">
+                          <Label htmlFor="besType">Tipologia BES</Label>
+                          <Input id="besType" placeholder="Es: DSA, ADHD, etc." />
+                        </div>
+                        <div className="space-y-2">
                           <Label>Note Specifiche</Label>
-                          <textarea 
-                            className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            placeholder="Inserisci note specifiche..."
+                          <Textarea 
+                            placeholder="Inserisci note specifiche sui bisogni educativi speciali..."
+                            className="min-h-[100px]"
                           />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
+                  <Card className="border border-muted p-4">
+                    <CardHeader className="p-0">
+                      <CardTitle className="text-base flex items-center">
+                        <Pills className="h-4 w-4 mr-2 text-red-500" />
+                        Allergie e Farmaci
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0 pt-4">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="allergies">Allergie</Label>
+                          <Input 
+                            id="allergies" 
+                            defaultValue={student.allergies}
+                            placeholder="Specificare eventuali allergie" 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="allergyDocumentation">Documentazione Allergie</Label>
+                          <Input type="file" id="allergyDocumentation" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="medications">Farmaci Abituali</Label>
+                          <Input 
+                            id="medications" 
+                            defaultValue={student.medications}
+                            placeholder="Specificare eventuali farmaci" 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="medicationPermission">Autorizzazione Somministrazione Farmaci</Label>
+                          <Input type="file" id="medicationPermission" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="medicationNotes">Note sui Farmaci</Label>
+                          <Textarea 
+                            id="medicationNotes"
+                            placeholder="Specificare modalità di somministrazione, orari, dosaggi..."
+                            className="min-h-[100px]"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="md:col-span-2">
                   <Card className="border border-muted p-4">
                     <CardHeader className="p-0">
                       <CardTitle className="text-base flex items-center">
@@ -412,8 +659,8 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                         </div>
                         <div className="space-y-2">
                           <Label>Note sui Talenti</Label>
-                          <textarea 
-                            className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          <Textarea 
+                            className="min-h-[100px]"
                             placeholder="Descrivi i talenti e le attitudini dello studente..."
                           />
                         </div>
@@ -539,6 +786,94 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                       </div>
                     </CardContent>
                   </Card>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="fiscal-code" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Calcolo Codice Fiscale</CardTitle>
+              <CardDescription>Strumento per il calcolo del codice fiscale</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-firstName">Nome</Label>
+                    <Input 
+                      id="fc-firstName" 
+                      value={fiscalCodeInputs.firstName}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, firstName: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-lastName">Cognome</Label>
+                    <Input 
+                      id="fc-lastName" 
+                      value={fiscalCodeInputs.lastName}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, lastName: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-birthDate">Data di Nascita</Label>
+                    <Input 
+                      id="fc-birthDate" 
+                      type="date" 
+                      value={fiscalCodeInputs.birthDate}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, birthDate: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fc-gender">Sesso</Label>
+                    <Select 
+                      value={fiscalCodeInputs.gender}
+                      onValueChange={(value) => setFiscalCodeInputs({...fiscalCodeInputs, gender: value})}
+                    >
+                      <SelectTrigger id="fc-gender">
+                        <SelectValue placeholder="Seleziona il sesso" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="M">Maschio</SelectItem>
+                        <SelectItem value="F">Femmina</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="fc-birthPlace">Luogo di Nascita</Label>
+                    <Input 
+                      id="fc-birthPlace" 
+                      value={fiscalCodeInputs.birthPlace}
+                      onChange={(e) => setFiscalCodeInputs({...fiscalCodeInputs, birthPlace: e.target.value})}
+                      placeholder="Comune di nascita"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col space-y-4">
+                  <Button onClick={handleFiscalCodeCalculation}>
+                    <Calculator className="mr-2 h-4 w-4" />
+                    Calcola Codice Fiscale
+                  </Button>
+                  
+                  {calculatedFiscalCode && (
+                    <div className="p-4 border rounded-md bg-muted/50">
+                      <p className="font-medium mb-2">Codice Fiscale Calcolato:</p>
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-lg px-3 py-1">
+                          {calculatedFiscalCode}
+                        </Badge>
+                        <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(calculatedFiscalCode)}>
+                          Copia
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Nota: Questo è un calcolo semplificato. In un'applicazione reale, dovrebbe essere utilizzato un algoritmo completo.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>

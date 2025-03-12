@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const Students = () => {
   const [selectedTab, setSelectedTab] = useState("list");
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedClass, setSelectedClass] = useState<string | undefined>(undefined);
 
   const handleStudentSelect = (studentId: string) => {
     setSelectedStudent(studentId);
@@ -23,6 +25,12 @@ const Students = () => {
   const handleBackToList = () => {
     setSelectedStudent(null);
     setSelectedTab("list");
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real application, this would trigger a search with the query and selected class
+    console.log("Searching for:", searchQuery, "in class:", selectedClass);
   };
 
   return (
@@ -48,19 +56,21 @@ const Students = () => {
           </TabsList>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <div className="flex w-full md:w-auto">
+            <form onSubmit={handleSearch} className="flex w-full md:w-auto">
               <Input 
                 placeholder="Cerca studente..." 
                 className="rounded-r-none"
                 type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button variant="outline" className="rounded-l-none">
+              <Button variant="outline" className="rounded-l-none" type="submit">
                 <Search className="h-4 w-4" />
               </Button>
-            </div>
+            </form>
             
             <div className="flex sm:flex-row gap-4">
-              <Select>
+              <Select value={selectedClass} onValueChange={setSelectedClass}>
                 <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="Classe" />
                 </SelectTrigger>
