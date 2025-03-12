@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,7 +37,7 @@ import {
   Calculator,
   Wallet,
   BookCopy,
-  Pills,
+  Pill,
   AlarmClock,
   UserCheck,
   BadgeCheck
@@ -596,7 +597,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
                   <Card className="border border-muted p-4">
                     <CardHeader className="p-0">
                       <CardTitle className="text-base flex items-center">
-                        <Pills className="h-4 w-4 mr-2 text-red-500" />
+                        <Pill className="h-4 w-4 mr-2 text-red-500" />
                         Allergie e Farmaci
                       </CardTitle>
                     </CardHeader>
