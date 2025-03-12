@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,28 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Book, Link, Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
+// Mock data for classes and students
+const classesData = [
+  { id: "1A", name: "1A" },
+  { id: "1B", name: "1B" },
+  { id: "2A", name: "2A" },
+  { id: "2B", name: "2B" },
+  { id: "3A", name: "3A" },
+];
+
+const studentsData = [
+  { id: "S12345", name: "Marco Rossi", classId: "1A" },
+  { id: "S12346", name: "Laura Bianchi", classId: "1A" },
+  { id: "S12347", name: "Giovanni Verdi", classId: "2A" },
+  { id: "S12348", name: "Sofia Russo", classId: "2B" },
+  { id: "S12349", name: "Luca Ferrari", classId: "3A" },
+  { id: "S12350", name: "Giulia Esposito", classId: "1B" },
+  { id: "S12351", name: "Andrea Romano", classId: "2A" },
+  { id: "S12352", name: "Martina Colombo", classId: "3A" },
+  { id: "S12353", name: "Davide Ricci", classId: "2B" },
+  { id: "S12354", name: "Valentina Marino", classId: "1B" },
+];
+
 // Assignment form schema
 const assignmentSchema = z.object({
   title: z.string().min(3, { message: "Il titolo deve essere di almeno 3 caratteri" }),
@@ -24,6 +46,7 @@ const assignmentSchema = z.object({
   assignedTo: z.enum(["class", "student"]),
   classId: z.string().optional(),
   studentId: z.string().optional(),
+  filterClassId: z.string().optional(),
   resourceFile: z.any().optional(),
   resourceLink: z.string().url({ message: "Inserire un URL valido" }).optional(),
 });
@@ -34,6 +57,8 @@ const CreateAssignment = () => {
   const [resourceType, setResourceType] = useState("file");
   const [assigneeType, setAssigneeType] = useState("class");
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [filteredStudents, setFilteredStudents] = useState(studentsData);
+  const [selectedFilterClass, setSelectedFilterClass] = useState<string | null>(null);
 
   const form = useForm<AssignmentFormValues>({
     resolver: zodResolver(assignmentSchema),
@@ -45,6 +70,7 @@ const CreateAssignment = () => {
       assignedTo: "class",
       classId: "",
       studentId: "",
+      filterClassId: "",
       resourceLink: "",
     },
   });
@@ -57,6 +83,16 @@ const CreateAssignment = () => {
     }
   };
 
+  // Filter students when filter class changes
+  const handleFilterClassChange = (classId: string) => {
+    setSelectedFilterClass(classId);
+    const filtered = studentsData.filter(student => student.classId === classId);
+    setFilteredStudents(filtered);
+    
+    // Reset the selected student when changing class filter
+    form.setValue("studentId", "");
+  };
+
   const onSubmit = (data: AssignmentFormValues) => {
     console.log("Form data:", data);
     
@@ -66,6 +102,8 @@ const CreateAssignment = () => {
     // Reset form
     form.reset();
     setUploadedFileName(null);
+    setSelectedFilterClass(null);
+    setFilteredStudents(studentsData);
   };
 
   return (
@@ -224,11 +262,11 @@ const CreateAssignment = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1A">1A</SelectItem>
-                      <SelectItem value="1B">1B</SelectItem>
-                      <SelectItem value="2A">2A</SelectItem>
-                      <SelectItem value="2B">2B</SelectItem>
-                      <SelectItem value="3A">3A</SelectItem>
+                      {classesData.map((classItem) => (
+                        <SelectItem key={classItem.id} value={classItem.id}>
+                          {classItem.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -236,30 +274,71 @@ const CreateAssignment = () => {
               )}
             />
           ) : (
-            <FormField
-              control={form.control}
-              name="studentId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Studente</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona uno studente" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="S12345">Marco Rossi</SelectItem>
-                      <SelectItem value="S12346">Laura Bianchi</SelectItem>
-                      <SelectItem value="S12347">Giovanni Verdi</SelectItem>
-                      <SelectItem value="S12348">Sofia Russo</SelectItem>
-                      <SelectItem value="S12349">Luca Ferrari</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="filterClassId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Filtra per classe</FormLabel>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        handleFilterClassChange(value);
+                      }} 
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona una classe per filtrare" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {classesData.map((classItem) => (
+                          <SelectItem key={classItem.id} value={classItem.id}>
+                            {classItem.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Seleziona prima una classe per filtrare l'elenco degli studenti
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="studentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Studente</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona uno studente" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredStudents.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>
+                            {student.name} ({student.classId})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedFilterClass && (
+                      <FormDescription>
+                        Mostrando studenti della classe {selectedFilterClass}
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
         </div>
 
