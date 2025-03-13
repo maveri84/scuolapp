@@ -28,7 +28,17 @@ import {
   Copy,
   Trash,
   Settings,
-  Upload
+  Upload,
+  Calendar,
+  Clock,
+  MapPin,
+  Phone,
+  AtSign,
+  Book,
+  Building,
+  Home,
+  UserCircle,
+  CreditCard
 } from "lucide-react";
 import {
   Table,
@@ -72,6 +82,8 @@ import {
   FormMessage 
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Messages = () => {
   const [activeTab, setActiveTab] = useState("inbox");
@@ -90,6 +102,58 @@ const Messages = () => {
       content: "",
     },
   });
+
+  const databaseFields = [
+    {
+      category: "Informazioni Studente",
+      fields: [
+        { name: "nome_studente", label: "Nome Studente", icon: <User className="h-3 w-3" /> },
+        { name: "cognome_studente", label: "Cognome Studente", icon: <User className="h-3 w-3" /> },
+        { name: "codice_fiscale", label: "Codice Fiscale", icon: <CreditCard className="h-3 w-3" /> },
+        { name: "data_nascita", label: "Data di Nascita", icon: <Calendar className="h-3 w-3" /> },
+        { name: "indirizzo", label: "Indirizzo", icon: <Home className="h-3 w-3" /> },
+        { name: "email_studente", label: "Email Studente", icon: <AtSign className="h-3 w-3" /> },
+        { name: "telefono_studente", label: "Telefono Studente", icon: <Phone className="h-3 w-3" /> }
+      ]
+    },
+    {
+      category: "Informazioni Genitori",
+      fields: [
+        { name: "nome_genitore", label: "Nome Genitore", icon: <UserCircle className="h-3 w-3" /> },
+        { name: "cognome_genitore", label: "Cognome Genitore", icon: <UserCircle className="h-3 w-3" /> },
+        { name: "email_genitore", label: "Email Genitore", icon: <AtSign className="h-3 w-3" /> },
+        { name: "telefono_genitore", label: "Telefono Genitore", icon: <Phone className="h-3 w-3" /> }
+      ]
+    },
+    {
+      category: "Informazioni Scuola",
+      fields: [
+        { name: "nome_scuola", label: "Nome Scuola", icon: <Building className="h-3 w-3" /> },
+        { name: "classe", label: "Classe", icon: <Users className="h-3 w-3" /> },
+        { name: "sezione", label: "Sezione", icon: <Book className="h-3 w-3" /> },
+        { name: "anno_scolastico", label: "Anno Scolastico", icon: <Calendar className="h-3 w-3" /> },
+        { name: "indirizzo_scuola", label: "Indirizzo Scuola", icon: <MapPin className="h-3 w-3" /> },
+        { name: "nome_insegnante", label: "Nome Insegnante", icon: <UserCircle className="h-3 w-3" /> }
+      ]
+    },
+    {
+      category: "Date ed Eventi",
+      fields: [
+        { name: "data_evento", label: "Data Evento", icon: <Calendar className="h-3 w-3" /> },
+        { name: "ora_evento", label: "Ora Evento", icon: <Clock className="h-3 w-3" /> },
+        { name: "luogo_evento", label: "Luogo Evento", icon: <MapPin className="h-3 w-3" /> },
+        { name: "tipo_evento", label: "Tipo Evento", icon: <FileText className="h-3 w-3" /> }
+      ]
+    }
+  ];
+
+  const insertFieldIntoTemplate = (fieldName) => {
+    console.log(`Inserting field: {{${fieldName}}}`);
+    toast({
+      title: "Campo inserito",
+      description: `Il campo {{${fieldName}}} è stato inserito nel modello`,
+    });
+  };
 
   const handleSendEmail = (e: React.FormEvent) => {
     e.preventDefault();
@@ -521,78 +585,84 @@ const Messages = () => {
                           <div className="flex items-center justify-between border-b p-4">
                             <h3 className="text-sm font-medium">Strumenti</h3>
                           </div>
-                          <div className="p-4 space-y-4">
-                            <div className="space-y-1">
-                              <Label htmlFor="templateName">Nome Modello</Label>
-                              <Input id="templateName" />
-                            </div>
-                            
-                            <div className="space-y-1">
-                              <Label htmlFor="templateType">Tipo</Label>
-                              <Select defaultValue="email">
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Seleziona tipo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="email">Email</SelectItem>
-                                  <SelectItem value="push">Notifica Push</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            
-                            <div className="space-y-1">
-                              <Label htmlFor="description">Descrizione</Label>
-                              <Textarea id="description" rows={3} />
-                            </div>
-
-                            <div className="space-y-2 pt-4">
-                              <h4 className="text-sm font-medium">Elementi</h4>
-                              <div className="grid grid-cols-2 gap-2">
-                                <Button variant="outline" size="sm" className="justify-start">
-                                  <Text className="mr-2 h-4 w-4" />
-                                  Testo
-                                </Button>
-                                <Button variant="outline" size="sm" className="justify-start">
-                                  <Image className="mr-2 h-4 w-4" />
-                                  Logo
-                                </Button>
-                                <Button variant="outline" size="sm" className="justify-start">
-                                  <Database className="mr-2 h-4 w-4" />
-                                  Dati DB
-                                </Button>
-                                <Button variant="outline" size="sm" className="justify-start">
-                                  <LayoutTemplate className="mr-2 h-4 w-4" />
-                                  Layout
-                                </Button>
+                          <ScrollArea className="flex-1">
+                            <div className="p-4 space-y-4">
+                              <div className="space-y-1">
+                                <Label htmlFor="templateName">Nome Modello</Label>
+                                <Input id="templateName" />
                               </div>
-                            </div>
+                              
+                              <div className="space-y-1">
+                                <Label htmlFor="templateType">Tipo</Label>
+                                <Select defaultValue="email">
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Seleziona tipo" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="email">Email</SelectItem>
+                                    <SelectItem value="push">Notifica Push</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <Label htmlFor="description">Descrizione</Label>
+                                <Textarea id="description" rows={3} />
+                              </div>
 
-                            <div className="space-y-2 pt-4">
-                              <h4 className="text-sm font-medium">Dati Disponibili</h4>
-                              <div className="space-y-1 text-xs">
-                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
-                                  <span>Nome Studente</span>
-                                  <Plus className="h-3 w-3" />
-                                </div>
-                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
-                                  <span>Nome Classe</span>
-                                  <Plus className="h-3 w-3" />
-                                </div>
-                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
-                                  <span>Insegnante</span>
-                                  <Plus className="h-3 w-3" />
-                                </div>
-                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
-                                  <span>Data Evento</span>
-                                  <Plus className="h-3 w-3" />
-                                </div>
-                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
-                                  <span>Orario</span>
-                                  <Plus className="h-3 w-3" />
+                              <div className="space-y-2 pt-4">
+                                <h4 className="text-sm font-medium">Elementi</h4>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <Button variant="outline" size="sm" className="justify-start">
+                                    <Text className="mr-2 h-4 w-4" />
+                                    Testo
+                                  </Button>
+                                  <Button variant="outline" size="sm" className="justify-start">
+                                    <Image className="mr-2 h-4 w-4" />
+                                    Logo
+                                  </Button>
+                                  <Button variant="outline" size="sm" className="justify-start">
+                                    <Database className="mr-2 h-4 w-4" />
+                                    Dati DB
+                                  </Button>
+                                  <Button variant="outline" size="sm" className="justify-start">
+                                    <LayoutTemplate className="mr-2 h-4 w-4" />
+                                    Layout
+                                  </Button>
                                 </div>
                               </div>
+
+                              <div className="space-y-2 pt-4">
+                                <h4 className="text-sm font-medium">Campi Disponibili</h4>
+                                <Accordion type="single" collapsible className="w-full">
+                                  {databaseFields.map((category, index) => (
+                                    <AccordionItem key={index} value={`category-${index}`}>
+                                      <AccordionTrigger className="text-xs py-2">
+                                        {category.category}
+                                      </AccordionTrigger>
+                                      <AccordionContent>
+                                        <div className="space-y-1">
+                                          {category.fields.map((field, fieldIndex) => (
+                                            <div 
+                                              key={fieldIndex} 
+                                              className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted text-xs"
+                                              onClick={() => insertFieldIntoTemplate(field.name)}
+                                            >
+                                              <div className="flex items-center">
+                                                {field.icon}
+                                                <span className="ml-2">{field.label}</span>
+                                              </div>
+                                              <Plus className="h-3 w-3" />
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </AccordionContent>
+                                    </AccordionItem>
+                                  ))}
+                                </Accordion>
+                              </div>
                             </div>
-                          </div>
+                          </ScrollArea>
                         </div>
                       </ResizablePanel>
                       
@@ -749,3 +819,4 @@ const Messages = () => {
 };
 
 export default Messages;
+
