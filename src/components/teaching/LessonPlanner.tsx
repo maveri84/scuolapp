@@ -57,6 +57,9 @@ const subjectsData = [
   { id: '10', name: 'Tecnologia' },
 ];
 
+// Define the type for the status to be one of the specified literal types
+type LessonStatus = 'draft' | 'upcoming' | 'completed';
+
 // Mock lesson plans
 const mockLessonPlans = [
   {
@@ -71,7 +74,7 @@ const mockLessonPlans = [
     activities: 'Lezione frontale (20 min)\nAttività pratiche con materiali manipolativi (30 min)\nEsercizi alla lavagna (10 min)',
     assessment: 'Partecipazione in classe\nEsercizi individuali di verifica',
     notes: 'Prestare attenzione agli studenti con difficoltà nel concetto di divisione',
-    status: 'completed'
+    status: 'completed' as LessonStatus  // Type cast to ensure TypeScript recognizes it as a valid status
   },
   {
     id: '2',
@@ -85,7 +88,7 @@ const mockLessonPlans = [
     activities: 'Ripasso delle regole (15 min)\nEsempi pratici (15 min)\nEsercizi individuali (15 min)',
     assessment: 'Esercizi di completamento\nProva di verifica scritta',
     notes: '',
-    status: 'upcoming'
+    status: 'upcoming' as LessonStatus  // Type cast to ensure TypeScript recognizes it as a valid status
   },
   {
     id: '3',
@@ -99,7 +102,7 @@ const mockLessonPlans = [
     activities: 'Introduzione all\'argomento (20 min)\nVisione documentario (30 min)\nDiscussione guidata (20 min)\nAttività di gruppo (20 min)',
     assessment: 'Partecipazione alla discussione\nElaborato di gruppo',
     notes: 'Preparare la mappa concettuale da distribuire agli studenti',
-    status: 'draft'
+    status: 'draft' as LessonStatus  // Type cast to ensure TypeScript recognizes it as a valid status
   }
 ];
 
@@ -115,7 +118,7 @@ interface LessonPlan {
   activities: string;
   assessment: string;
   notes: string;
-  status: 'draft' | 'upcoming' | 'completed';
+  status: LessonStatus;  // Using the type alias for status
 }
 
 const LessonPlanner = () => {
@@ -166,7 +169,7 @@ const LessonPlanner = () => {
     const newLessonPlan: LessonPlan = {
       ...newPlan,
       id: Date.now().toString(),
-      status: 'upcoming'
+      status: 'upcoming' // This is now properly typed
     };
     
     setLessonPlans([...lessonPlans, newLessonPlan]);
@@ -194,7 +197,7 @@ const LessonPlanner = () => {
       ...plan,
       id: Date.now().toString(),
       title: `${plan.title} (copia)`,
-      status: 'draft'
+      status: 'draft' // This is now properly typed
     };
     
     setLessonPlans([...lessonPlans, duplicatedPlan]);
@@ -209,7 +212,7 @@ const LessonPlanner = () => {
   const handleCompleteLessonPlan = (id: string) => {
     const updatedPlans = lessonPlans.map(plan => {
       if (plan.id === id) {
-        return { ...plan, status: 'completed' as const };
+        return { ...plan, status: 'completed' as LessonStatus };
       }
       return plan;
     });
