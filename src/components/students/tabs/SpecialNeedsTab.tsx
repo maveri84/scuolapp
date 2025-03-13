@@ -1,164 +1,120 @@
 
-import React from "react";
-import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import React, { useState } from "react";
+import { Card, CardHeader, CardContent, CardDescription, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, AlertCircle, Pill, Award } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { FileText, Upload, Save } from "lucide-react";
 import { Student } from "../types/student";
 
 interface SpecialNeedsTabProps {
   student: Student;
-  onChange?: (field: string, value: any) => void;
 }
 
-const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, onChange }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (onChange) {
-      onChange(e.target.id, e.target.value);
-    }
-  };
-
-  const handleSelectChange = (field: string, value: string) => {
-    if (onChange) {
-      onChange(field, value);
-    }
-  };
-
+const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
+  const [isH, setIsH] = useState(false);
+  const [isDSA, setIsDSA] = useState(false);
+  const [isBES, setIsBES] = useState(false);
+  const [notes, setNotes] = useState("");
+  
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Particolarità dello Studente</CardTitle>
-        <CardDescription>Informazioni specifiche, bisogni speciali, allergie e farmaci</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="border border-muted p-4">
-              <CardHeader className="p-0">
-                <CardTitle className="text-base flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-2 text-yellow-500" />
-                  Disabilità e Bisogni Educativi Speciali
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 pt-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="disability">Disabilità</Label>
-                    <Select 
-                      value={student.disability === "Nessuna" ? "nessuna" : "presente"}
-                      onValueChange={(value) => handleSelectChange("disability", value === "nessuna" ? "Nessuna" : "Presente")}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="nessuna">Nessuna</SelectItem>
-                        <SelectItem value="presente">Presente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="disabilityType">Tipologia Disabilità</Label>
-                    <Input 
-                      id="disabilityType" 
-                      placeholder="Specificare la tipologia di disabilità"
-                      onChange={handleChange} 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="disabilityClause">Articolo di Riferimento</Label>
-                    <Select onValueChange={(value) => handleSelectChange("disabilityClause", value)}>
-                      <SelectTrigger id="disabilityClause">
-                        <SelectValue placeholder="Seleziona" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="comma1">Comma 1</SelectItem>
-                        <SelectItem value="comma3">Comma 3</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="specialNeeds">Bisogni Educativi Speciali</Label>
-                    <Select 
-                      value={student.specialNeeds ? "si" : "no"}
-                      onValueChange={(value) => handleSelectChange("specialNeeds", value === "si")}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no">No</SelectItem>
-                        <SelectItem value="si">Sì</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="accommodations">Accomodamenti</Label>
-                    <Textarea 
-                      id="accommodations" 
-                      value={student.accommodations}
-                      onChange={handleChange}
-                      placeholder="Specificare accomodamenti necessari"
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-muted p-4">
-              <CardHeader className="p-0">
-                <CardTitle className="text-base flex items-center">
-                  <Pill className="h-4 w-4 mr-2 text-red-500" />
-                  Allergie e Farmaci
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 pt-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="allergies">Allergie</Label>
-                    <Input 
-                      id="allergies" 
-                      value={student.allergies}
-                      onChange={handleChange}
-                      placeholder="Specificare eventuali allergie" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="medications">Farmaci Abituali</Label>
-                    <Input 
-                      id="medications" 
-                      value={student.medications}
-                      onChange={handleChange}
-                      placeholder="Specificare eventuali farmaci" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="medicationNotes">Note sui Farmaci</Label>
-                    <Textarea 
-                      id="medicationNotes"
-                      placeholder="Specificare modalità di somministrazione, orari, dosaggi..."
-                      onChange={handleChange}
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Bisogni Educativi Speciali</CardTitle>
+          <CardDescription>Gestisci le informazioni sui bisogni educativi speciali dello studente</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="is-h" className="flex flex-col space-y-1">
+              <span>Disabilità (L. 104/92)</span>
+              <span className="font-normal text-sm text-muted-foreground">Lo studente ha una disabilità certificata</span>
+            </Label>
+            <Switch 
+              id="is-h" 
+              checked={isH}
+              onCheckedChange={setIsH}
+            />
           </div>
-
-          {!onChange && (
-            <Button className="w-full">
+          
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="is-dsa" className="flex flex-col space-y-1">
+              <span>DSA (L. 170/2010)</span>
+              <span className="font-normal text-sm text-muted-foreground">Lo studente ha un disturbo specifico dell'apprendimento</span>
+            </Label>
+            <Switch 
+              id="is-dsa" 
+              checked={isDSA}
+              onCheckedChange={setIsDSA}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="is-bes" className="flex flex-col space-y-1">
+              <span>Altri BES (Dir. Min. 27/12/2012)</span>
+              <span className="font-normal text-sm text-muted-foreground">Lo studente ha altri bisogni educativi speciali</span>
+            </Label>
+            <Switch 
+              id="is-bes" 
+              checked={isBES}
+              onCheckedChange={setIsBES}
+            />
+          </div>
+        </CardContent>
+      </Card>
+      
+      {(isH || isDSA || isBES) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Documentazione e Note</CardTitle>
+            <CardDescription>Carica documenti e aggiungi note sulle particolarità dello studente</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Documenti</Label>
+              <div className="flex flex-col space-y-2">
+                <div className="border rounded-md p-4 flex justify-between items-center">
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    <span>Diagnosi Funzionale.pdf</span>
+                  </div>
+                  <Button variant="ghost" size="sm">Visualizza</Button>
+                </div>
+                <div className="border rounded-md p-4 flex justify-between items-center">
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    <span>PEI_2023_2024.pdf</span>
+                  </div>
+                  <Button variant="ghost" size="sm">Visualizza</Button>
+                </div>
+                <Button variant="outline" className="w-full">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Carica Nuovo Documento
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label htmlFor="special-notes">Note</Label>
+              <Textarea 
+                id="special-notes" 
+                placeholder="Aggiungi note sulle particolarità dello studente..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={5}
+              />
+            </div>
+            
+            <Button>
               <Save className="mr-2 h-4 w-4" />
-              Salva Modifiche
+              Salva Informazioni
             </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 

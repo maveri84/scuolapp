@@ -11,6 +11,7 @@ import Grades from "./pages/Grades";
 import Settings from "./pages/Settings";
 import Students from "./pages/Students";
 import Assignments from "./pages/Assignments";
+import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/students" element={<Students />} />
           <Route path="/assignments" element={<Assignments />} />
+          <Route path="/messages" element={<Messages />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
