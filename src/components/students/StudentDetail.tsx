@@ -851,7 +851,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student }) => {
   );
 };
 
-export default StudentDetail;
+export { StudentDetail };
 
 interface StudentDetailWrapperProps {
   studentId: string;

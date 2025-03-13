@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -120,6 +119,7 @@ const Students = () => {
                   ← Torna alla lista
                 </Button>
               </div>
+              {/* The studentId prop now correctly matches what StudentDetailWrapper expects */}
               <StudentDetailWrapper studentId={selectedStudent} />
             </>
           )}
