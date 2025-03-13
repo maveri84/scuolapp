@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Search, UserPlus, FileText, Users, Upload } from "lucide-react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import StudentsList from "@/components/students/StudentsList";
-import StudentDetail from "@/components/students/StudentDetail";
+import StudentDetailWrapper from "@/components/students/StudentDetail";
 import ImportStudentsModal from "@/components/students/ImportStudentsModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -120,7 +120,7 @@ const Students = () => {
                   ← Torna alla lista
                 </Button>
               </div>
-              <StudentDetail studentId={selectedStudent} />
+              <StudentDetailWrapper studentId={selectedStudent} />
             </>
           )}
         </TabsContent>

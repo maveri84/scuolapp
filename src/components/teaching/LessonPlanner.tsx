@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { BookCopy, Clock, FileText, Plus } from "lucide-react";
 
 // Import types and mock data
-import { LessonPlan, mockLessonPlans } from "./types/lesson";
+import { LessonPlan, LessonStatus, mockLessonPlans } from "./types/lesson";
 
 // Import components
 import LessonFilters from "./lesson/LessonFilters";
@@ -17,6 +17,8 @@ import LessonTable from "./lesson/LessonTable";
 import LessonForm from "./lesson/LessonForm";
 import CalendarView from "./lesson/CalendarView";
 import EmptyState from "./lesson/EmptyState";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 const LessonPlanner = () => {
   const [lessonPlans, setLessonPlans] = useState<LessonPlan[]>(mockLessonPlans);
@@ -31,7 +33,7 @@ const LessonPlanner = () => {
     const newLessonPlan: LessonPlan = {
       ...newPlan,
       id: Date.now().toString(),
-      status: 'upcoming'
+      status: 'upcoming' // Use the correct LessonStatus type
     };
     
     setLessonPlans([...lessonPlans, newLessonPlan]);
@@ -44,7 +46,7 @@ const LessonPlanner = () => {
       ...plan,
       id: Date.now().toString(),
       title: `${plan.title} (copia)`,
-      status: 'draft'
+      status: 'draft' // Use the correct LessonStatus type
     };
     
     setLessonPlans([...lessonPlans, duplicatedPlan]);
@@ -59,7 +61,7 @@ const LessonPlanner = () => {
   const handleCompleteLessonPlan = (id: string) => {
     const updatedPlans = lessonPlans.map(plan => {
       if (plan.id === id) {
-        return { ...plan, status: 'completed' };
+        return { ...plan, status: 'completed' as LessonStatus };
       }
       return plan;
     });
@@ -205,8 +207,5 @@ const LessonPlanner = () => {
     </div>
   );
 };
-
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 
 export default LessonPlanner;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -42,58 +42,7 @@ import {
   BadgeCheck
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const mockStudentDetail = {
-  id: "1",
-  firstName: "Marco",
-  lastName: "Rossi",
-  studentId: "SR2024001",
-  class: "3A",
-  dateOfBirth: "15/05/2008",
-  placeOfBirth: "Milano",
-  fiscalCode: "RSSMRC08E15F205Z",
-  address: "Via Roma 123",
-  city: "Milano",
-  postalCode: "20100",
-  email: "marco.rossi@student.example.com",
-  phone: "333-1234567",
-  
-  disability: "Nessuna",
-  allergies: "Polline",
-  medications: "Nessuno",
-  attendsReligiousEducation: true,
-  
-  fatherFirstName: "Giuseppe",
-  fatherLastName: "Rossi",
-  fatherFiscalCode: "RSSGPP70A01F205Z", 
-  fatherEmail: "giuseppe.rossi@example.com",
-  fatherPhone: "333-7654321",
-  fatherOccupation: "Ingegnere",
-  
-  motherFirstName: "Maria",
-  motherLastName: "Bianchi",
-  motherFiscalCode: "BNCMRA75B41F205Y",
-  motherEmail: "maria.rossi@example.com",
-  motherPhone: "333-9876543",
-  motherOccupation: "Medico",
-  
-  delegates: [
-    { name: "Anna Verdi", relationship: "Nonna", fiscalCode: "VRDNNA50C44F205X", phone: "333-1122334" },
-    { name: "Paolo Neri", relationship: "Zio", fiscalCode: "NREPLA65D23F205Y", phone: "333-5566778" }
-  ],
-  
-  enrollmentDate: "01/09/2022",
-  previousSchool: "Scuola Media Manzoni",
-  academicHistory: [
-    { year: "2022-2023", class: "1A", finalGrade: "8/10", notes: "Ottimo rendimento in matematica" },
-    { year: "2023-2024", class: "2A", finalGrade: "8.5/10", notes: "Miglioramento nelle lingue straniere" }
-  ],
-  
-  specialNeeds: false,
-  accommodations: "",
-  
-  notes: "Partecipa attivamente alle attività extracurriculari. Rappresentante di classe per l'anno 2023-2024."
-};
+import { Student, mockStudentDetail } from "./types/student";
 
 const calculateFiscalCode = (firstName: string, lastName: string, birthDate: string, gender: string, birthPlace: string): string => {
   const birthDateComponents = birthDate.split('-');
@@ -903,3 +852,15 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student }) => {
 };
 
 export default StudentDetail;
+
+interface StudentDetailWrapperProps {
+  studentId: string;
+}
+
+const StudentDetailWrapper: React.FC<StudentDetailWrapperProps> = ({ studentId }) => {
+  const student = mockStudentDetail;
+  
+  return <StudentDetail student={student} />;
+};
+
+export default StudentDetailWrapper;
