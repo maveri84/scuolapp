@@ -17,7 +17,19 @@ import {
   Inbox,
   FileText,
   CheckSquare,
-  ArrowUpDown
+  ArrowUpDown,
+  Image,
+  Database,
+  Save,
+  Eye,
+  Plus,
+  Text,
+  LayoutTemplate,
+  FilePlus,
+  Copy,
+  Trash,
+  Settings,
+  Upload
 } from "lucide-react";
 import {
   Table,
@@ -46,12 +58,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+import { 
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage 
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 const Messages = () => {
   const [activeTab, setActiveTab] = useState("inbox");
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
   const [isPushDialogOpen, setIsPushDialogOpen] = useState(false);
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+  const [templatePreview, setTemplatePreview] = useState(false);
   const { toast } = useToast();
+
+  const form = useForm({
+    defaultValues: {
+      templateName: "",
+      templateType: "email",
+      description: "",
+      subject: "",
+      content: "",
+    },
+  });
 
   const handleSendEmail = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +107,15 @@ const Messages = () => {
     toast({
       title: "Notifica inviata",
       description: "La notifica push è stata inviata con successo",
+    });
+  };
+
+  const handleCreateTemplate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsTemplateDialogOpen(false);
+    toast({
+      title: "Modello creato",
+      description: "Il modello di comunicazione è stato creato con successo",
     });
   };
 
@@ -449,6 +497,194 @@ const Messages = () => {
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Modelli di comunicazione</h3>
+              
+              <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    Nuovo Modello
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[900px] h-[80vh]">
+                  <DialogHeader>
+                    <DialogTitle>Crea Nuovo Modello di Comunicazione</DialogTitle>
+                    <DialogDescription>
+                      Crea un modello personalizzato per le tue comunicazioni con studenti, genitori e personale
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="flex flex-col h-full overflow-hidden">
+                    <ResizablePanelGroup direction="horizontal" className="min-h-[500px] rounded-lg border">
+                      <ResizablePanel defaultSize={25} minSize={20}>
+                        <div className="flex h-full flex-col">
+                          <div className="flex items-center justify-between border-b p-4">
+                            <h3 className="text-sm font-medium">Strumenti</h3>
+                          </div>
+                          <div className="p-4 space-y-4">
+                            <div className="space-y-1">
+                              <Label htmlFor="templateName">Nome Modello</Label>
+                              <Input id="templateName" />
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <Label htmlFor="templateType">Tipo</Label>
+                              <Select defaultValue="email">
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Seleziona tipo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="email">Email</SelectItem>
+                                  <SelectItem value="push">Notifica Push</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <Label htmlFor="description">Descrizione</Label>
+                              <Textarea id="description" rows={3} />
+                            </div>
+
+                            <div className="space-y-2 pt-4">
+                              <h4 className="text-sm font-medium">Elementi</h4>
+                              <div className="grid grid-cols-2 gap-2">
+                                <Button variant="outline" size="sm" className="justify-start">
+                                  <Text className="mr-2 h-4 w-4" />
+                                  Testo
+                                </Button>
+                                <Button variant="outline" size="sm" className="justify-start">
+                                  <Image className="mr-2 h-4 w-4" />
+                                  Logo
+                                </Button>
+                                <Button variant="outline" size="sm" className="justify-start">
+                                  <Database className="mr-2 h-4 w-4" />
+                                  Dati DB
+                                </Button>
+                                <Button variant="outline" size="sm" className="justify-start">
+                                  <LayoutTemplate className="mr-2 h-4 w-4" />
+                                  Layout
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2 pt-4">
+                              <h4 className="text-sm font-medium">Dati Disponibili</h4>
+                              <div className="space-y-1 text-xs">
+                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
+                                  <span>Nome Studente</span>
+                                  <Plus className="h-3 w-3" />
+                                </div>
+                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
+                                  <span>Nome Classe</span>
+                                  <Plus className="h-3 w-3" />
+                                </div>
+                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
+                                  <span>Insegnante</span>
+                                  <Plus className="h-3 w-3" />
+                                </div>
+                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
+                                  <span>Data Evento</span>
+                                  <Plus className="h-3 w-3" />
+                                </div>
+                                <div className="flex items-center justify-between border px-2 py-1 rounded-md cursor-pointer hover:bg-muted">
+                                  <span>Orario</span>
+                                  <Plus className="h-3 w-3" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </ResizablePanel>
+                      
+                      <ResizableHandle withHandle />
+                      
+                      <ResizablePanel defaultSize={75}>
+                        <div className="flex h-full flex-col">
+                          <div className="flex items-center justify-between border-b p-4">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-sm font-medium">Editor</h3>
+                              
+                              <Select defaultValue="editor">
+                                <SelectTrigger className="h-8 w-[120px]">
+                                  <SelectValue placeholder="Visualizza" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="editor">Editor</SelectItem>
+                                  <SelectItem value="preview">Anteprima</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <Button size="sm" variant="outline">
+                                <Eye className="mr-2 h-4 w-4" />
+                                Anteprima
+                              </Button>
+                              <Button size="sm">
+                                <Save className="mr-2 h-4 w-4" />
+                                Salva
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="flex-1 p-4 overflow-auto">
+                            <div className="flex flex-col gap-4">
+                              <div className="space-y-1">
+                                <Label htmlFor="subject">Oggetto</Label>
+                                <Input id="subject" placeholder="Inserisci l'oggetto" />
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                  <Label htmlFor="content">Contenuto</Label>
+                                  <div className="flex gap-1">
+                                    <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                                      <Upload className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                                      <Image className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                                      <Settings className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="min-h-[300px] rounded-md border p-4">
+                                  <div className="flex flex-col gap-4">
+                                    <div className="bg-muted p-3 rounded-md flex items-center justify-center h-16 border-2 border-dashed">
+                                      <p className="text-sm text-muted-foreground">Trascina qui il logo della scuola o <span className="text-primary cursor-pointer">caricalo</span></p>
+                                    </div>
+                                    <Textarea 
+                                      placeholder="Inizia a scrivere il contenuto del tuo messaggio qui..." 
+                                      className="min-h-[200px]"
+                                    />
+                                    <div className="bg-muted-foreground/10 p-3 rounded-md text-sm">
+                                      <p>Suggerimento: Utilizza {{nome_studente}} per inserire il nome dello studente, {{classe}} per la classe, ecc.</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </ResizablePanel>
+                    </ResizablePanelGroup>
+                  </div>
+                  
+                  <DialogFooter className="mt-4">
+                    <Button variant="outline" onClick={() => setIsTemplateDialogOpen(false)}>
+                      Annulla
+                    </Button>
+                    <Button type="submit" onClick={handleCreateTemplate}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Salva Modello
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
             <Card>
               <CardContent className="p-0">
                 <Table>
@@ -458,7 +694,7 @@ const Messages = () => {
                       <TableHead>Nome modello</TableHead>
                       <TableHead>Descrizione</TableHead>
                       <TableHead className="w-[180px]">Creato il</TableHead>
-                      <TableHead className="w-[120px]">Azioni</TableHead>
+                      <TableHead className="w-[180px]">Azioni</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -474,6 +710,12 @@ const Messages = () => {
                         <Button variant="ghost" size="sm">
                           <Send className="h-4 w-4" />
                         </Button>
+                        <Button variant="ghost" size="sm">
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Trash className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                     <TableRow>
@@ -487,6 +729,12 @@ const Messages = () => {
                         </Button>
                         <Button variant="ghost" size="sm">
                           <Send className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Trash className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
