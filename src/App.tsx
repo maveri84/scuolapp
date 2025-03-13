@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 
@@ -17,18 +17,13 @@ import Classes from "./pages/Classes"; // Add new Classes page
 import "./App.css";
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <Router>
       <Routes>
         <Route
           path="/"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Index />
             </DashboardLayout>
           }
@@ -36,10 +31,7 @@ function App() {
         <Route
           path="/attendance"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Attendance />
             </DashboardLayout>
           }
@@ -47,10 +39,7 @@ function App() {
         <Route
           path="/grades"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Grades />
             </DashboardLayout>
           }
@@ -58,10 +47,7 @@ function App() {
         <Route
           path="/students"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Students />
             </DashboardLayout>
           }
@@ -69,10 +55,7 @@ function App() {
         <Route
           path="/assignments"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Assignments />
             </DashboardLayout>
           }
@@ -80,10 +63,7 @@ function App() {
         <Route
           path="/messages"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Messages />
             </DashboardLayout>
           }
@@ -91,10 +71,7 @@ function App() {
         <Route
           path="/classes"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Classes />
             </DashboardLayout>
           }
@@ -102,10 +79,7 @@ function App() {
         <Route
           path="/settings"
           element={
-            <DashboardLayout
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-            >
+            <DashboardLayout>
               <Settings />
             </DashboardLayout>
           }
