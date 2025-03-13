@@ -135,7 +135,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
     birthPlace: student.placeOfBirth
   });
   
-  // Fixed: Changed the type explicitly to string to match the return type of calculateFiscalCode
+  // Fix: Changed the type explicitly to string to match the return type of calculateFiscalCode
   const [calculatedFiscalCode, setCalculatedFiscalCode] = useState<string>("");
   const [delegates, setDelegates] = useState(student.delegates);
   
