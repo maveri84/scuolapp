@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -14,7 +13,8 @@ import {
   UserCheck, 
   Users,
   Shield,
-  GraduationCap
+  GraduationCap,
+  School
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
@@ -31,16 +31,14 @@ interface SidebarItemProps {
   isAdmin?: boolean;
 }
 
-// Simulating role-based access control
 const userRoles = {
-  isAdmin: true // In a real app, this would come from auth
+  isAdmin: true
 };
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, isAdmin = false }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   
-  // Hide admin-only items if user is not admin
   if (isAdmin && !userRoles.isAdmin) {
     return null;
   }
@@ -116,6 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
                 <SidebarItem icon={<CalendarDays className="h-5 w-5" />} label="Calendario" to="/calendar" />
                 <SidebarItem icon={<Mail className="h-5 w-5" />} label="Comunicazioni" to="/messages" />
                 <SidebarItem icon={<Users className="h-5 w-5" />} label="Classi" to="/classes" />
+                <SidebarItem icon={<School className="h-5 w-5" />} label="Docenti" to="/faculty" />
               </ul>
             </nav>
           </div>

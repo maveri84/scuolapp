@@ -12,7 +12,8 @@ import Assignments from "./pages/Assignments";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import Classes from "./pages/Classes"; // Add new Classes page
+import Classes from "./pages/Classes"; 
+import Faculty from "./pages/Faculty"; // Import the Faculty page
 
 import "./App.css";
 
@@ -73,6 +74,14 @@ function App() {
           element={
             <DashboardLayout>
               <Classes />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/faculty"
+          element={
+            <DashboardLayout>
+              <Faculty />
             </DashboardLayout>
           }
         />
