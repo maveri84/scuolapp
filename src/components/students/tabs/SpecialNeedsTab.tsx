@@ -11,9 +11,22 @@ import { Student } from "../types/student";
 
 interface SpecialNeedsTabProps {
   student: Student;
+  onChange?: (field: string, value: any) => void;
 }
 
-const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
+const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, onChange }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (onChange) {
+      onChange(e.target.id, e.target.value);
+    }
+  };
+
+  const handleSelectChange = (field: string, value: string) => {
+    if (onChange) {
+      onChange(field, value);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -34,7 +47,10 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="disability">Disabilità</Label>
-                    <Select defaultValue={student.disability === "Nessuna" ? "nessuna" : "presente"}>
+                    <Select 
+                      value={student.disability === "Nessuna" ? "nessuna" : "presente"}
+                      onValueChange={(value) => handleSelectChange("disability", value === "nessuna" ? "Nessuna" : "Presente")}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona" />
                       </SelectTrigger>
@@ -46,11 +62,15 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="disabilityType">Tipologia Disabilità</Label>
-                    <Input id="disabilityType" placeholder="Specificare la tipologia di disabilità" />
+                    <Input 
+                      id="disabilityType" 
+                      placeholder="Specificare la tipologia di disabilità"
+                      onChange={handleChange} 
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="disabilityClause">Articolo di Riferimento</Label>
-                    <Select>
+                    <Select onValueChange={(value) => handleSelectChange("disabilityClause", value)}>
                       <SelectTrigger id="disabilityClause">
                         <SelectValue placeholder="Seleziona" />
                       </SelectTrigger>
@@ -61,33 +81,27 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="law10492ExpiryDate">Scadenza Certificazione 104/92</Label>
-                    <Input 
-                      id="law10492ExpiryDate" 
-                      type="date" 
-                      placeholder="Data di scadenza"
-                    />
+                    <Label htmlFor="specialNeeds">Bisogni Educativi Speciali</Label>
+                    <Select 
+                      value={student.specialNeeds ? "si" : "no"}
+                      onValueChange={(value) => handleSelectChange("specialNeeds", value === "si")}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="si">Sì</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="otherCertificationsExpiry">Scadenza Altre Certificazioni</Label>
-                    <Input 
-                      id="otherCertificationsExpiry" 
-                      type="date" 
-                      placeholder="Data di scadenza"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Documentazione</Label>
-                    <Input type="file" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="besType">Tipologia BES</Label>
-                    <Input id="besType" placeholder="Es: DSA, ADHD, etc." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Note Specifiche</Label>
+                    <Label htmlFor="accommodations">Accomodamenti</Label>
                     <Textarea 
-                      placeholder="Inserisci note specifiche sui bisogni educativi speciali..."
+                      id="accommodations" 
+                      value={student.accommodations}
+                      onChange={handleChange}
+                      placeholder="Specificare accomodamenti necessari"
                       className="min-h-[100px]"
                     />
                   </div>
@@ -108,31 +122,26 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
                     <Label htmlFor="allergies">Allergie</Label>
                     <Input 
                       id="allergies" 
-                      defaultValue={student.allergies}
+                      value={student.allergies}
+                      onChange={handleChange}
                       placeholder="Specificare eventuali allergie" 
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="allergyDocumentation">Documentazione Allergie</Label>
-                    <Input type="file" id="allergyDocumentation" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="medications">Farmaci Abituali</Label>
                     <Input 
                       id="medications" 
-                      defaultValue={student.medications}
+                      value={student.medications}
+                      onChange={handleChange}
                       placeholder="Specificare eventuali farmaci" 
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="medicationPermission">Autorizzazione Somministrazione Farmaci</Label>
-                    <Input type="file" id="medicationPermission" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="medicationNotes">Note sui Farmaci</Label>
                     <Textarea 
                       id="medicationNotes"
                       placeholder="Specificare modalità di somministrazione, orari, dosaggi..."
+                      onChange={handleChange}
                       className="min-h-[100px]"
                     />
                   </div>
@@ -141,40 +150,12 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
             </Card>
           </div>
 
-          <div className="md:col-span-2">
-            <Card className="border border-muted p-4">
-              <CardHeader className="p-0">
-                <CardTitle className="text-base flex items-center">
-                  <Award className="h-4 w-4 mr-2 text-blue-500" />
-                  Talenti e Attitudini
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 pt-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Aree di Eccellenza</Label>
-                    <Input placeholder="Es: Matematica, Arte, Sport" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Attività Extracurriculari</Label>
-                    <Input placeholder="Es: Teatro, Coro, Sport" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Note sui Talenti</Label>
-                    <Textarea 
-                      className="min-h-[100px]"
-                      placeholder="Descrivi i talenti e le attitudini dello studente..."
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Button className="w-full">
-            <Save className="mr-2 h-4 w-4" />
-            Salva Modifiche
-          </Button>
+          {!onChange && (
+            <Button className="w-full">
+              <Save className="mr-2 h-4 w-4" />
+              Salva Modifiche
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

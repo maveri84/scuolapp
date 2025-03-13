@@ -1,7 +1,7 @@
+
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search, UserPlus, FileText, Users, Upload } from "lucide-react";
@@ -9,8 +9,10 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import StudentsList from "@/components/students/StudentsList";
 import StudentDetailWrapper from "@/components/students/StudentDetail";
 import ImportStudentsModal from "@/components/students/ImportStudentsModal";
+import AddStudentForm from "@/components/students/AddStudentForm";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Student } from "@/components/students/types/student";
 
 const Students = () => {
   const [selectedTab, setSelectedTab] = useState("list");
@@ -18,15 +20,24 @@ const Students = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClass, setSelectedClass] = useState<string | undefined>(undefined);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const handleStudentSelect = (studentId: string) => {
     setSelectedStudent(studentId);
     setSelectedTab("detail");
+    setShowAddForm(false);
   };
 
   const handleBackToList = () => {
     setSelectedStudent(null);
     setSelectedTab("list");
+    setShowAddForm(false);
+  };
+
+  const handleNewStudent = () => {
+    setSelectedStudent(null);
+    setShowAddForm(true);
+    setSelectedTab("add");
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -39,6 +50,13 @@ const Students = () => {
     // In a real app, you would process and save these students to your database
     console.log("Imported students:", importedStudents);
     toast.success(`Importati ${importedStudents.length} studenti con successo`);
+  };
+
+  const handleSaveNewStudent = (student: Student) => {
+    // In a real app, you would save this student to your database
+    console.log("New student:", student);
+    toast.success("Studente aggiunto con successo");
+    handleBackToList();
   };
 
   return (
@@ -60,6 +78,10 @@ const Students = () => {
             <TabsTrigger value="detail" disabled={!selectedStudent}>
               <FileText className="mr-2 h-4 w-4" />
               Dettaglio Studente
+            </TabsTrigger>
+            <TabsTrigger value="add" disabled={!showAddForm}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Nuovo Studente
             </TabsTrigger>
           </TabsList>
 
@@ -96,7 +118,7 @@ const Students = () => {
                   <Upload className="mr-2 h-4 w-4" />
                   Importa
                 </Button>
-                <Button>
+                <Button onClick={handleNewStudent}>
                   <UserPlus className="mr-2 h-4 w-4" />
                   Nuovo Studente
                 </Button>
@@ -119,9 +141,17 @@ const Students = () => {
                   ← Torna alla lista
                 </Button>
               </div>
-              {/* The studentId prop now correctly matches what StudentDetailWrapper expects */}
               <StudentDetailWrapper studentId={selectedStudent} />
             </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="add" className="mt-0">
+          {showAddForm && (
+            <AddStudentForm
+              onCancel={handleBackToList}
+              onSave={handleSaveNewStudent}
+            />
           )}
         </TabsContent>
       </Tabs>

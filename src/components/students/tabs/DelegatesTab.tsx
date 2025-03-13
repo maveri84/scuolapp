@@ -9,14 +9,31 @@ import { Student, Delegate } from "../types/student";
 
 interface DelegatesTabProps {
   student: Student;
+  onChange?: (delegates: Delegate[]) => void;
 }
 
-const DelegatesTab: React.FC<DelegatesTabProps> = ({ student }) => {
+const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
   const [delegates, setDelegates] = useState(student.delegates);
   
   const addDelegate = () => {
     if (delegates.length < 5) {
-      setDelegates([...delegates, { name: "", relationship: "", fiscalCode: "", phone: "" }]);
+      const newDelegates = [...delegates, { name: "", relationship: "", fiscalCode: "", phone: "" }];
+      setDelegates(newDelegates);
+      if (onChange) {
+        onChange(newDelegates);
+      }
+    }
+  };
+  
+  const updateDelegate = (index: number, field: keyof Delegate, value: string) => {
+    const newDelegates = [...delegates];
+    newDelegates[index] = {
+      ...newDelegates[index],
+      [field]: value
+    };
+    setDelegates(newDelegates);
+    if (onChange) {
+      onChange(newDelegates);
     }
   };
   
@@ -36,32 +53,36 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student }) => {
                   <Label htmlFor={`delegate-name-${index}`}>Nome e Cognome</Label>
                   <Input 
                     id={`delegate-name-${index}`} 
-                    defaultValue={delegate.name}
+                    value={delegate.name}
                     placeholder="Nome completo del delegato" 
+                    onChange={(e) => updateDelegate(index, 'name', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`delegate-relationship-${index}`}>Relazione</Label>
                   <Input 
                     id={`delegate-relationship-${index}`} 
-                    defaultValue={delegate.relationship}
+                    value={delegate.relationship}
                     placeholder="Es: Nonna, Zio, Babysitter" 
+                    onChange={(e) => updateDelegate(index, 'relationship', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`delegate-fiscal-code-${index}`}>Codice Fiscale</Label>
                   <Input 
                     id={`delegate-fiscal-code-${index}`} 
-                    defaultValue={delegate.fiscalCode}
+                    value={delegate.fiscalCode}
                     placeholder="Codice fiscale del delegato" 
+                    onChange={(e) => updateDelegate(index, 'fiscalCode', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`delegate-phone-${index}`}>Telefono</Label>
                   <Input 
                     id={`delegate-phone-${index}`} 
-                    defaultValue={delegate.phone}
+                    value={delegate.phone}
                     placeholder="Numero di telefono" 
+                    onChange={(e) => updateDelegate(index, 'phone', e.target.value)}
                   />
                 </div>
               </div>
@@ -75,12 +96,14 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student }) => {
             </Button>
           )}
 
-          <div className="flex justify-end mt-6">
-            <Button>
-              <Save className="mr-2 h-4 w-4" />
-              Salva Modifiche
-            </Button>
-          </div>
+          {!onChange && (
+            <div className="flex justify-end mt-6">
+              <Button>
+                <Save className="mr-2 h-4 w-4" />
+                Salva Modifiche
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
