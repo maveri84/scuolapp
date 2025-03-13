@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -660,7 +659,7 @@ const Messages = () => {
                                       className="min-h-[200px]"
                                     />
                                     <div className="bg-muted-foreground/10 p-3 rounded-md text-sm">
-                                      <p>Suggerimento: Utilizza {{nome_studente}} per inserire il nome dello studente, {{classe}} per la classe, ecc.</p>
+                                      <p>Suggerimento: Utilizza {"{{"}"nome_studente{"}}"} per inserire il nome dello studente, {"{{"}"classe{"}}"} per la classe, ecc.</p>
                                     </div>
                                   </div>
                                 </div>
