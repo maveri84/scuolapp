@@ -1,19 +1,9 @@
 
 import React from "react";
-import { Plus, User, Calendar, Clock, MapPin, Phone, AtSign, Book, Building, Home, UserCircle, CreditCard } from "lucide-react";
+import { Plus, User, Calendar, Clock, MapPin, Phone, AtSign, Book, Building, Home, UserCircle, CreditCard, FileText } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-
-interface Field {
-  name: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
-interface FieldCategory {
-  category: string;
-  fields: Field[];
-}
+import { Field, FieldCategory } from "./types";
 
 interface DatabaseFieldSelectorProps {
   onFieldInsert?: (fieldName: string) => void;
@@ -48,7 +38,7 @@ const DatabaseFieldSelector: React.FC<DatabaseFieldSelectorProps> = ({ onFieldIn
       category: "Informazioni Scuola",
       fields: [
         { name: "nome_scuola", label: "Nome Scuola", icon: <Building className="h-3 w-3" /> },
-        { name: "classe", label: "Classe", icon: <Users className="h-3 w-3" /> },
+        { name: "classe", label: "Classe", icon: <User className="h-3 w-3" /> },
         { name: "sezione", label: "Sezione", icon: <Book className="h-3 w-3" /> },
         { name: "anno_scolastico", label: "Anno Scolastico", icon: <Calendar className="h-3 w-3" /> },
         { name: "indirizzo_scuola", label: "Indirizzo Scuola", icon: <MapPin className="h-3 w-3" /> },
