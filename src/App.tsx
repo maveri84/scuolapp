@@ -1,39 +1,119 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import DashboardLayout from "./layouts/DashboardLayout";
+
+// Import pages
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 import Attendance from "./pages/Attendance";
 import Grades from "./pages/Grades";
-import Settings from "./pages/Settings";
 import Students from "./pages/Students";
 import Assignments from "./pages/Assignments";
 import Messages from "./pages/Messages";
+import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
+import Classes from "./pages/Classes"; // Add new Classes page
 
-const queryClient = new QueryClient();
+import "./App.css";
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/attendance" element={<Attendance />} />
-          <Route path="/grades" element={<Grades />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/assignments" element={<Assignments />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Index />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/attendance"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Attendance />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/grades"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Grades />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/students"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Students />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/assignments"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Assignments />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/messages"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Messages />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/classes"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Classes />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <DashboardLayout
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+            >
+              <Settings />
+            </DashboardLayout>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+}
 
 export default App;
