@@ -14,7 +14,7 @@ const Teaching = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Didattica</h1>
         <p className="text-muted-foreground mt-2">
-          Gestisci il materiale didattico e le lezioni
+          Gestisci materiali didattici, app educative e pianifica le tue lezioni
         </p>
       </div>
 

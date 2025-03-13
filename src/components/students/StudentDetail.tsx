@@ -121,11 +121,10 @@ const calculateFiscalCode = (firstName: string, lastName: string, birthDate: str
 };
 
 interface StudentDetailProps {
-  studentId: string;
+  student: Student;
 }
 
-const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
-  const student = mockStudentDetail;
+const StudentDetail: React.FC<StudentDetailProps> = ({ student }) => {
   const [fiscalCodeInputs, setFiscalCodeInputs] = useState({
     firstName: student.firstName,
     lastName: student.lastName,
@@ -904,4 +903,3 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ studentId }) => {
 };
 
 export default StudentDetail;
-
