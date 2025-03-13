@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardDescription, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -8,17 +8,49 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { FileText, Upload, Save } from "lucide-react";
 import { Student } from "../types/student";
+import { toast } from "sonner";
 
 interface SpecialNeedsTabProps {
   student: Student;
+  onChange?: (field: keyof Student, value: any) => void;
 }
 
-const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
+const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, onChange }) => {
   const [isH, setIsH] = useState(false);
   const [isDSA, setIsDSA] = useState(false);
   const [isBES, setIsBES] = useState(false);
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(student.notes || "");
   
+  const handleNotesChange = (value: string) => {
+    setNotes(value);
+    if (onChange) {
+      onChange("notes", value);
+    }
+  };
+  
+  const handleSpecialNeedsChange = (value: boolean) => {
+    if (onChange) {
+      onChange("specialNeeds", value);
+      // When setting specialNeeds, we're considering it's true if any of these is true
+      if (isH || isDSA || isBES) {
+        onChange("specialNeeds", true);
+      } else {
+        onChange("specialNeeds", false);
+      }
+    }
+  };
+  
+  const handleSave = () => {
+    toast.success("Informazioni salvate con successo");
+  };
+  
+  useEffect(() => {
+    // Update special needs value when component loads or when switches change
+    if (onChange && (isH || isDSA || isBES)) {
+      onChange("specialNeeds", true);
+    }
+  }, [isH, isDSA, isBES, onChange]);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -35,7 +67,10 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
             <Switch 
               id="is-h" 
               checked={isH}
-              onCheckedChange={setIsH}
+              onCheckedChange={(checked) => {
+                setIsH(checked);
+                handleSpecialNeedsChange(checked || isDSA || isBES);
+              }}
             />
           </div>
           
@@ -47,7 +82,10 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
             <Switch 
               id="is-dsa" 
               checked={isDSA}
-              onCheckedChange={setIsDSA}
+              onCheckedChange={(checked) => {
+                setIsDSA(checked);
+                handleSpecialNeedsChange(isH || checked || isBES);
+              }}
             />
           </div>
           
@@ -59,7 +97,10 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
             <Switch 
               id="is-bes" 
               checked={isBES}
-              onCheckedChange={setIsBES}
+              onCheckedChange={(checked) => {
+                setIsBES(checked);
+                handleSpecialNeedsChange(isH || isDSA || checked);
+              }}
             />
           </div>
         </CardContent>
@@ -102,12 +143,12 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student }) => {
                 id="special-notes" 
                 placeholder="Aggiungi note sulle particolarità dello studente..."
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => handleNotesChange(e.target.value)}
                 rows={5}
               />
             </div>
             
-            <Button>
+            <Button onClick={handleSave}>
               <Save className="mr-2 h-4 w-4" />
               Salva Informazioni
             </Button>
