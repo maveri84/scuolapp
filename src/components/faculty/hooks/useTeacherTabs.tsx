@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   User,
@@ -116,7 +117,8 @@ export const useTeacherTabs = () => {
   return { tabs };
 };
 
-export const renderTabContent = (activeTab: string) => {
+// This should only be used within a TeacherProvider component
+export const TabContentRenderer: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const { tabs } = useTeacherTabs();
   
   return (

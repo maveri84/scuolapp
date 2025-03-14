@@ -7,7 +7,7 @@ import { TeacherProvider } from "./context/TeacherContext";
 import FacultyActionBar from "./FacultyActionBar";
 import FacultyTabHeader from "./FacultyTabHeader";
 import TeacherProfileCard from "./TeacherProfileCard";
-import { renderTabContent } from "./hooks/useTeacherTabs";
+import { TabContentRenderer } from "./hooks/useTeacherTabs";
 
 interface FacultyDetailProps {
   teacherId: string | null;
@@ -42,7 +42,7 @@ const FacultyDetail: React.FC<FacultyDetailProps> = ({
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <FacultyTabHeader activeTab={activeTab} />
-          {renderTabContent(activeTab)}
+          <TabContentRenderer activeTab={activeTab} />
         </Tabs>
       </div>
     </TeacherProvider>
