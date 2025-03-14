@@ -1,12 +1,13 @@
 
 import React from "react";
+import DashboardLayout from "@/layouts/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ClassTeacherAssignment from "@/components/classes/ClassTeacherAssignment";
 import SubjectManagement from "@/components/classes/SubjectManagement";
 
 const Classes: React.FC = () => {
   return (
-    <div className="container mx-auto p-6">
+    <DashboardLayout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Gestione Classi</h1>
         <p className="text-muted-foreground">
@@ -28,7 +29,7 @@ const Classes: React.FC = () => {
           <SubjectManagement />
         </TabsContent>
       </Tabs>
-    </div>
+    </DashboardLayout>
   );
 };
 

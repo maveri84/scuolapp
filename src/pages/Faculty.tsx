@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import DashboardLayout from "@/layouts/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FacultyList from "@/components/faculty/FacultyList";
 import FacultyDetail from "@/components/faculty/FacultyDetail";
@@ -37,7 +38,7 @@ const Faculty: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <DashboardLayout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Gestione Docenti</h1>
         <p className="text-muted-foreground">
@@ -68,7 +69,7 @@ const Faculty: React.FC = () => {
           onBack={handleBackToList}
         />
       )}
-    </div>
+    </DashboardLayout>
   );
 };
 
