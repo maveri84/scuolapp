@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -15,6 +16,7 @@ import Classes from "./pages/Classes";
 import Faculty from "./pages/Faculty";
 import Calendar from "./pages/Calendar";
 import Customization from "./pages/Customization";
+import Administration from "./pages/Administration";
 
 import "./App.css";
 
@@ -99,6 +101,14 @@ function App() {
           element={
             <DashboardLayout>
               <Customization />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/administration"
+          element={
+            <DashboardLayout>
+              <Administration />
             </DashboardLayout>
           }
         />
