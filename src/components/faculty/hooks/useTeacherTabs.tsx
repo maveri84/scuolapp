@@ -9,6 +9,7 @@ import {
   Mail,
   BadgeEuro,
   Shield,
+  Calendar,
 } from "lucide-react";
 import { TabsContent } from "@/components/ui/tabs";
 import PersonalInfoTab from "../tabs/PersonalInfoTab";
@@ -19,6 +20,7 @@ import DocumentsTab from "../tabs/DocumentsTab";
 import CommunicationsTab from "../tabs/CommunicationsTab";
 import PayrollTab from "../tabs/PayrollTab";
 import PermissionsTab from "../tabs/PermissionsTab";
+import LeaveRequestsTab from "../tabs/LeaveRequestsTab";
 import { useTeacher } from "../context/TeacherContext";
 import { Teacher } from "../types";
 
@@ -74,6 +76,16 @@ export const useTeacherTabs = () => {
         <ServicesTab
           teacher={teacher}
           onChange={updateTeacher}
+        />
+      ),
+    },
+    {
+      id: "leave-requests",
+      label: "Richieste e Assenze",
+      icon: <Calendar className="mr-2 h-4 w-4" />,
+      content: (
+        <LeaveRequestsTab
+          teacherId={teacher.id}
         />
       ),
     },
