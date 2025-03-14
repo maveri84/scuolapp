@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Teacher } from "./types/faculty";
+import { Teacher } from "./types";
 import { Mail, Phone, User } from "lucide-react";
 
 interface TeacherProfileCardProps {

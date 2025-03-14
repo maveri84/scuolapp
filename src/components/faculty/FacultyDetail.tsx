@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Tabs } from "@/components/ui/tabs";
-import { mockTeachers } from "./types/faculty";
+import { mockTeachers } from "./types";
 import { getInitialTeacher } from "./utils/teacherUtils";
 import { TeacherProvider } from "./context/TeacherContext";
 import FacultyActionBar from "./FacultyActionBar";

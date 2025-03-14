@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle, X } from "lucide-react";
-import { Teacher } from "../types/faculty";
+import { Teacher } from "../types";
 
 interface PermissionsTabProps {
   teacher: Teacher;

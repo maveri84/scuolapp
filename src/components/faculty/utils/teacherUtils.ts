@@ -1,5 +1,5 @@
 
-import { Teacher } from "../types/faculty";
+import { Teacher } from "../types";
 
 // Initial empty teacher template
 export const emptyTeacher: Teacher = {

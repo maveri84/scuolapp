@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Teacher } from "../types/faculty";
+import { Teacher } from "../types";
 
 interface EmploymentTabProps {
   teacher: Teacher;

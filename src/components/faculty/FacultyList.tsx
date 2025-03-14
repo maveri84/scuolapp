@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { mockTeachers, Teacher } from "./types/faculty";
+import { mockTeachers, Teacher } from "./types";
 
 interface FacultyListProps {
   onSelectTeacher: (id: string) => void;

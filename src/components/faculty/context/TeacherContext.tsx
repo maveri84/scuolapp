@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState } from "react";
-import { Teacher } from "../types/faculty";
+import { Teacher } from "../types";
 
 interface TeacherContextType {
   teacher: Teacher;
