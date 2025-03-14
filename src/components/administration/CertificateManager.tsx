@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { FilePlus, FileText, Download, Eye, Edit, Trash2, Search } from "lucide-react";
+import { FilePlus, FileText, Download, Eye, Edit, Trash2, Search, Mail, Send, Signature, Save, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Certificate types based on Italian school system
@@ -39,6 +39,22 @@ interface Certificate {
   content: string;
   includeHeader?: boolean;
   includeFooter?: boolean;
+  signed?: boolean;
+  signedBy?: string;
+  signedDate?: string;
+  sentTo?: string[];
+  sentDate?: string;
+  savedToFile?: boolean;
+}
+
+// Person interface for certificate recipients
+interface Person {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  type: "studente" | "docente" | "personale";
+  class?: string;
 }
 
 // Default templates for certificates (simplified versions)
@@ -177,6 +193,16 @@ const DEFAULT_TEMPLATES: Certificate[] = [
   }
 ];
 
+// Mock data for students and teachers
+const MOCK_PEOPLE: Person[] = [
+  { id: "std1", firstName: "Marco", lastName: "Rossi", email: "marco.rossi@studenti.scuola.it", type: "studente", class: "3A" },
+  { id: "std2", firstName: "Anna", lastName: "Verdi", email: "anna.verdi@studenti.scuola.it", type: "studente", class: "4B" },
+  { id: "std3", firstName: "Luca", lastName: "Bianchi", email: "luca.bianchi@studenti.scuola.it", type: "studente", class: "5C" },
+  { id: "doc1", firstName: "Maria", lastName: "Ferrari", email: "maria.ferrari@docenti.scuola.it", type: "docente" },
+  { id: "doc2", firstName: "Giuseppe", lastName: "Romano", email: "giuseppe.romano@docenti.scuola.it", type: "docente" },
+  { id: "ata1", firstName: "Sofia", lastName: "Esposito", email: "sofia.esposito@personale.scuola.it", type: "personale" },
+];
+
 // Schema for certificate form validation
 const certificateFormSchema = z.object({
   name: z.string().min(3, { message: "Il nome deve contenere almeno 3 caratteri" }),
@@ -190,7 +216,18 @@ const certificateFormSchema = z.object({
   includeFooter: z.boolean().default(true),
 });
 
+// Schema for certificate generation form
+const certificateGenerationSchema = z.object({
+  templateId: z.string().min(1, { message: "Seleziona un modello" }),
+  recipientId: z.string().min(1, { message: "Seleziona un destinatario" }),
+  additionalData: z.record(z.string()).optional(),
+  sendEmail: z.boolean().default(false),
+  saveToFile: z.boolean().default(false),
+  signDocument: z.boolean().default(false),
+});
+
 type CertificateFormValues = z.infer<typeof certificateFormSchema>;
+type CertificateGenerationValues = z.infer<typeof certificateGenerationSchema>;
 
 const CertificateManager: React.FC = () => {
   const { toast } = useToast();
@@ -199,6 +236,13 @@ const CertificateManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"studenti" | "docenti" | "tutti">("tutti");
   const [editingCertificate, setEditingCertificate] = useState<Certificate | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  const [previewHtml, setPreviewHtml] = useState<string>("");
+  const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
+  const [isSignDialogOpen, setIsSignDialogOpen] = useState(false);
+  const [signatureData, setSignatureData] = useState({ name: "", title: "Dirigente Scolastico" });
+  const [generatedCertificates, setGeneratedCertificates] = useState<any[]>([]);
 
   // Filter certificates based on search and active tab
   const filteredCertificates = certificates.filter(cert => {
@@ -212,7 +256,7 @@ const CertificateManager: React.FC = () => {
     return matchesSearch && matchesTab;
   });
 
-  // Form setup
+  // Form setup for certificate template
   const form = useForm<CertificateFormValues>({
     resolver: zodResolver(certificateFormSchema),
     defaultValues: {
@@ -226,7 +270,19 @@ const CertificateManager: React.FC = () => {
     },
   });
 
-  // Handle form submission
+  // Form setup for certificate generation
+  const generateForm = useForm<CertificateGenerationValues>({
+    resolver: zodResolver(certificateGenerationSchema),
+    defaultValues: {
+      templateId: "",
+      recipientId: "",
+      sendEmail: false,
+      saveToFile: false,
+      signDocument: false,
+    },
+  });
+
+  // Handle form submission for templates
   const onSubmit = (values: CertificateFormValues) => {
     if (editingCertificate) {
       // Update existing certificate
@@ -261,6 +317,93 @@ const CertificateManager: React.FC = () => {
     setIsDialogOpen(false);
     setEditingCertificate(null);
     form.reset();
+  };
+
+  // Handle certificate generation submission
+  const onGenerateSubmit = (values: CertificateGenerationValues) => {
+    const template = certificates.find(c => c.id === values.templateId);
+    const recipient = MOCK_PEOPLE.find(p => p.id === values.recipientId);
+    
+    if (!template || !recipient) {
+      toast({
+        title: "Errore",
+        description: "Seleziona un modello di certificato e un destinatario validi.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Generate certificate content with actual data
+    let processedContent = template.content;
+    if (recipient.type === "studente") {
+      processedContent = processedContent
+        .replace(/{{nome_studente}}/g, recipient.firstName)
+        .replace(/{{cognome_studente}}/g, recipient.lastName)
+        .replace(/{{classe}}/g, recipient.class || "")
+        .replace(/{{sezione}}/g, recipient.class ? recipient.class.charAt(recipient.class.length - 1) : "")
+        .replace(/{{data_corrente}}/g, new Date().toLocaleDateString('it-IT'))
+        .replace(/{{anno_scolastico}}/g, `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`)
+        .replace(/{{genere}}/g, "o") // Simplified, should be based on actual gender
+        .replace(/{{nome_scuola}}/g, "I.I.S. Leonardo da Vinci")
+        .replace(/{{luogo}}/g, "Roma")
+        .replace(/{{nome_dirigente}}/g, "Dott.ssa Maria Rossi");
+    } else {
+      processedContent = processedContent
+        .replace(/{{nome_docente}}/g, recipient.firstName)
+        .replace(/{{cognome_docente}}/g, recipient.lastName)
+        .replace(/{{data_corrente}}/g, new Date().toLocaleDateString('it-IT'))
+        .replace(/{{nome_scuola}}/g, "I.I.S. Leonardo da Vinci")
+        .replace(/{{luogo}}/g, "Roma")
+        .replace(/{{nome_dirigente}}/g, "Dott.ssa Maria Rossi");
+    }
+
+    // Process additional data fields if available
+    if (values.additionalData) {
+      Object.entries(values.additionalData).forEach(([key, value]) => {
+        processedContent = processedContent.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      });
+    }
+
+    // Create generated certificate record
+    const generatedCert = {
+      id: `gen_${Date.now()}`,
+      templateId: template.id,
+      templateName: template.name,
+      recipientId: recipient.id,
+      recipientName: `${recipient.firstName} ${recipient.lastName}`,
+      recipientType: recipient.type,
+      content: processedContent,
+      createdAt: new Date().toISOString(),
+      signed: values.signDocument,
+      signedBy: values.signDocument ? signatureData.name : undefined,
+      signedDate: values.signDocument ? new Date().toISOString() : undefined,
+      sentEmail: values.sendEmail,
+      savedToFile: values.saveToFile,
+    };
+
+    setGeneratedCertificates(prev => [generatedCert, ...prev]);
+    setPreviewHtml(processedContent);
+    setIsPreviewDialogOpen(true);
+    setIsGenerateDialogOpen(false);
+
+    // Handle actions
+    if (values.sendEmail) {
+      handleSendEmail(generatedCert, recipient);
+    }
+    
+    if (values.saveToFile) {
+      handleSaveToFile(generatedCert, recipient);
+    }
+
+    if (values.signDocument) {
+      // The document is already marked as signed based on the form
+      toast({
+        title: "Certificato Firmato",
+        description: `Il certificato è stato firmato digitalmente da ${signatureData.name}.`
+      });
+    }
+
+    generateForm.reset();
   };
 
   // Handle edit certificate
@@ -302,13 +445,38 @@ const CertificateManager: React.FC = () => {
     setIsDialogOpen(true);
   };
 
+  // Handle generate certificate
+  const handleGenerateCertificate = (certificate: Certificate) => {
+    setSelectedCertificate(certificate);
+    generateForm.reset({
+      templateId: certificate.id,
+      recipientId: "",
+      sendEmail: false,
+      saveToFile: false,
+      signDocument: false,
+    });
+    setIsGenerateDialogOpen(true);
+  };
+
   // Handle preview certificate
   const handlePreview = (certificate: Certificate) => {
-    // In a real application, this would open a preview of the certificate
-    toast({
-      title: "Anteprima certificato",
-      description: `Visualizzazione anteprima di "${certificate.name}"`,
-    });
+    // Get simplified preview with placeholder data
+    let previewContent = certificate.content
+      .replace(/{{nome_studente}}/g, "Nome")
+      .replace(/{{cognome_studente}}/g, "Cognome")
+      .replace(/{{nome_docente}}/g, "Nome")
+      .replace(/{{cognome_docente}}/g, "Cognome")
+      .replace(/{{classe}}/g, "3")
+      .replace(/{{sezione}}/g, "A")
+      .replace(/{{data_corrente}}/g, new Date().toLocaleDateString('it-IT'))
+      .replace(/{{anno_scolastico}}/g, `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`)
+      .replace(/{{genere}}/g, "o")
+      .replace(/{{nome_scuola}}/g, "I.I.S. Leonardo da Vinci")
+      .replace(/{{luogo}}/g, "Roma")
+      .replace(/{{nome_dirigente}}/g, "Dott.ssa Maria Rossi");
+    
+    setPreviewHtml(previewContent);
+    setIsPreviewDialogOpen(true);
   };
 
   // Handle download certificate
@@ -318,6 +486,38 @@ const CertificateManager: React.FC = () => {
       title: "Download certificato",
       description: `Download di "${certificate.name}" avviato.`,
     });
+  };
+
+  // Handle sending email
+  const handleSendEmail = (certificate: any, recipient: Person) => {
+    // In a real application, this would send an email with the certificate
+    toast({
+      title: "Email inviata",
+      description: `Certificato "${certificate.templateName}" inviato a ${recipient.email}.`,
+    });
+  };
+
+  // Handle saving to personal file
+  const handleSaveToFile = (certificate: any, recipient: Person) => {
+    // In a real application, this would save to the student or employee file
+    toast({
+      title: "Salvato nel fascicolo personale",
+      description: `Certificato "${certificate.templateName}" salvato nel fascicolo di ${recipient.firstName} ${recipient.lastName}.`,
+    });
+  };
+
+  // Get filtered recipient options based on selected certificate
+  const getRecipientOptions = () => {
+    const certificateTemplate = certificates.find(c => c.id === generateForm.watch("templateId"));
+    if (!certificateTemplate) return MOCK_PEOPLE;
+    
+    if (certificateTemplate.target === "studenti") {
+      return MOCK_PEOPLE.filter(p => p.type === "studente");
+    } else if (certificateTemplate.target === "docenti") {
+      return MOCK_PEOPLE.filter(p => p.type === "docente" || p.type === "personale");
+    } else {
+      return MOCK_PEOPLE;
+    }
   };
 
   return (
@@ -506,6 +706,212 @@ const CertificateManager: React.FC = () => {
         </div>
       </div>
 
+      {/* Certificate Generation Dialog */}
+      <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Genera Certificato</DialogTitle>
+            <DialogDescription>
+              Compila i campi per generare un nuovo certificato personalizzato.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...generateForm}>
+            <form onSubmit={generateForm.handleSubmit(onGenerateSubmit)} className="space-y-4">
+              <FormField
+                control={generateForm.control}
+                name="templateId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Modello Certificato</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona un modello" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {certificates.map(cert => (
+                          <SelectItem key={cert.id} value={cert.id}>
+                            {cert.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={generateForm.control}
+                name="recipientId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Destinatario</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona un destinatario" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {getRecipientOptions().map(person => (
+                          <SelectItem key={person.id} value={person.id}>
+                            {person.firstName} {person.lastName} {person.type === "studente" ? `(${person.class})` : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="space-y-2">
+                <FormLabel>Operazioni</FormLabel>
+                <div className="flex flex-col gap-2 border rounded-md p-3">
+                  <FormField
+                    control={generateForm.control}
+                    name="signDocument"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value} 
+                            onCheckedChange={field.onChange} 
+                          />
+                        </FormControl>
+                        <div className="space-y-0.5">
+                          <FormLabel className="!mt-0">Firma Digitale</FormLabel>
+                          <FormDescription className="text-xs">
+                            Applica la firma digitale del dirigente scolastico
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={generateForm.control}
+                    name="sendEmail"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value} 
+                            onCheckedChange={field.onChange} 
+                          />
+                        </FormControl>
+                        <div className="space-y-0.5">
+                          <FormLabel className="!mt-0">Invia Email</FormLabel>
+                          <FormDescription className="text-xs">
+                            Invia il certificato via email al destinatario
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={generateForm.control}
+                    name="saveToFile"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value} 
+                            onCheckedChange={field.onChange} 
+                          />
+                        </FormControl>
+                        <div className="space-y-0.5">
+                          <FormLabel className="!mt-0">Salva nel Fascicolo</FormLabel>
+                          <FormDescription className="text-xs">
+                            Salva il certificato nel fascicolo personale
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {generateForm.watch("signDocument") && (
+                <div className="space-y-4">
+                  <FormLabel>Dati Firma</FormLabel>
+                  <div className="grid grid-cols-2 gap-4 border rounded-md p-3">
+                    <div>
+                      <FormLabel className="text-sm">Nome Firmatario</FormLabel>
+                      <Input 
+                        value={signatureData.name} 
+                        onChange={(e) => setSignatureData({...signatureData, name: e.target.value})}
+                        placeholder="Inserisci nome"
+                      />
+                    </div>
+                    <div>
+                      <FormLabel className="text-sm">Titolo</FormLabel>
+                      <Input 
+                        value={signatureData.title} 
+                        onChange={(e) => setSignatureData({...signatureData, title: e.target.value})}
+                        placeholder="Inserisci titolo"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button type="submit" className="w-full sm:w-auto">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Genera Certificato
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Certificate Preview Dialog */}
+      <Dialog open={isPreviewDialogOpen} onOpenChange={setIsPreviewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Anteprima Certificato</DialogTitle>
+            <DialogDescription>
+              Visualizzazione del certificato generato
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="border rounded-md p-4 bg-white min-h-[500px]">
+            <div 
+              className="certificate-preview" 
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
+          </div>
+
+          <DialogFooter className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsPreviewDialogOpen(false)}>
+              Chiudi
+            </Button>
+            <Button onClick={() => {
+              toast({
+                title: "Download avviato",
+                description: "Il certificato è stato scaricato con successo"
+              });
+              setIsPreviewDialogOpen(false);
+            }}>
+              <Download className="mr-2 h-4 w-4" />
+              Scarica PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Tabs defaultValue="tutti" onValueChange={(value) => setActiveTab(value as any)}>
         <TabsList>
           <TabsTrigger value="tutti">Tutti i Certificati</TabsTrigger>
@@ -514,69 +920,159 @@ const CertificateManager: React.FC = () => {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gestione Certificati</CardTitle>
-              <CardDescription>
-                {activeTab === "tutti" && "Tutti i modelli di certificato disponibili"}
-                {activeTab === "studenti" && "Certificati per gli studenti"}
-                {activeTab === "docenti" && "Certificati per i docenti"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Destinatari</TableHead>
-                      <TableHead className="text-right">Azioni</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredCertificates.length === 0 ? (
+          <div className="grid grid-cols-1 gap-4">
+            {/* Generated Certificates Card */}
+            {generatedCertificates.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Certificati Generati</CardTitle>
+                  <CardDescription>
+                    Certificati recentemente generati e inviati
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Certificato</TableHead>
+                          <TableHead>Destinatario</TableHead>
+                          <TableHead>Data</TableHead>
+                          <TableHead>Stato</TableHead>
+                          <TableHead className="text-right">Azioni</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {generatedCertificates.map((cert) => (
+                          <TableRow key={cert.id}>
+                            <TableCell className="font-medium">{cert.templateName}</TableCell>
+                            <TableCell>{cert.recipientName}</TableCell>
+                            <TableCell>{new Date(cert.createdAt).toLocaleDateString('it-IT')}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {cert.signed && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                    Firmato
+                                  </span>
+                                )}
+                                {cert.sentEmail && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                    Inviato
+                                  </span>
+                                )}
+                                {cert.savedToFile && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                    Archiviato
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button variant="outline" size="icon" onClick={() => {
+                                  setPreviewHtml(cert.content);
+                                  setIsPreviewDialogOpen(true);
+                                }}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="outline" size="icon" onClick={() => {
+                                  toast({
+                                    title: "Download avviato",
+                                    description: "Il certificato è stato scaricato con successo"
+                                  });
+                                }}>
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                                {!cert.sentEmail && (
+                                  <Button variant="outline" size="icon" onClick={() => {
+                                    const recipient = MOCK_PEOPLE.find(p => p.id === cert.recipientId);
+                                    if (recipient) {
+                                      handleSendEmail(cert, recipient);
+                                      // Update the certificate to mark as sent
+                                      setGeneratedCertificates(prev => 
+                                        prev.map(c => c.id === cert.id ? {...c, sentEmail: true} : c)
+                                      );
+                                    }
+                                  }}>
+                                    <Mail className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Certificate Templates Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Gestione Certificati</CardTitle>
+                <CardDescription>
+                  {activeTab === "tutti" && "Tutti i modelli di certificato disponibili"}
+                  {activeTab === "studenti" && "Certificati per gli studenti"}
+                  {activeTab === "docenti" && "Certificati per i docenti"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={4} className="h-24 text-center">
-                          Nessun certificato trovato.
-                        </TableCell>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Destinatari</TableHead>
+                        <TableHead className="text-right">Azioni</TableHead>
                       </TableRow>
-                    ) : (
-                      filteredCertificates.map((certificate) => (
-                        <TableRow key={certificate.id}>
-                          <TableCell className="font-medium">{certificate.name}</TableCell>
-                          <TableCell>
-                            {CERTIFICATE_TYPES.find(t => t.value === certificate.type)?.label || certificate.type}
-                          </TableCell>
-                          <TableCell>
-                            {certificate.target === "studenti" && "Studenti"}
-                            {certificate.target === "docenti" && "Docenti"}
-                            {certificate.target === "entrambi" && "Studenti e Docenti"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="icon" onClick={() => handlePreview(certificate)}>
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="icon" onClick={() => handleDownload(certificate)}>
-                                <Download className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="icon" onClick={() => handleEdit(certificate)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="icon" onClick={() => handleDelete(certificate.id)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredCertificates.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="h-24 text-center">
+                            Nessun certificato trovato.
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                      ) : (
+                        filteredCertificates.map((certificate) => (
+                          <TableRow key={certificate.id}>
+                            <TableCell className="font-medium">{certificate.name}</TableCell>
+                            <TableCell>
+                              {CERTIFICATE_TYPES.find(t => t.value === certificate.type)?.label || certificate.type}
+                            </TableCell>
+                            <TableCell>
+                              {certificate.target === "studenti" && "Studenti"}
+                              {certificate.target === "docenti" && "Docenti"}
+                              {certificate.target === "entrambi" && "Studenti e Docenti"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button variant="outline" size="icon" onClick={() => handlePreview(certificate)}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="outline" size="icon" onClick={() => handleGenerateCertificate(certificate)}>
+                                  <FileText className="h-4 w-4" />
+                                </Button>
+                                <Button variant="outline" size="icon" onClick={() => handleEdit(certificate)}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="outline" size="icon" onClick={() => handleDelete(certificate.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
