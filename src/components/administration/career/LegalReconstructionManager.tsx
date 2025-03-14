@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,13 +34,12 @@ const LegalReconstructionManager: React.FC = () => {
     sentenceNumber: "",
     sentenceDate: new Date().toISOString().split('T')[0],
     servicePeriods: [],
-    status: "submitted" as ReconstructionStatus, // Fix by explicitly casting to the correct type
+    status: "submitted" as ReconstructionStatus,
     notes: "",
     legalNotes: "",
     reconstructionType: "legal"
   });
   
-  // Filter reconstructions based on search term and active tab
   const filteredRecons = legalRecons
     .filter(recon => 
       recon.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,7 +92,7 @@ const LegalReconstructionManager: React.FC = () => {
       requestDate: new Date().toISOString(),
       reconstructionType: "legal",
       servicePeriods: [],
-      status: "submitted", // This is now properly typed
+      status: "submitted",
       submissionDate: new Date().toISOString(),
       courtName: newRecon.courtName || "",
       sentenceNumber: newRecon.sentenceNumber || "",
@@ -115,14 +113,13 @@ const LegalReconstructionManager: React.FC = () => {
       description: `Ricostruzione a sentenza per ${reconToAdd.teacherName} creata con successo`,
     });
     
-    // Reset form - fix status type here as well
     setNewRecon({
       teacherName: "",
       courtName: "",
       sentenceNumber: "",
       sentenceDate: new Date().toISOString().split('T')[0],
       servicePeriods: [],
-      status: "submitted" as ReconstructionStatus, // Fix by explicitly casting
+      status: "submitted" as ReconstructionStatus,
       notes: "",
       legalNotes: "",
       reconstructionType: "legal"
@@ -135,7 +132,6 @@ const LegalReconstructionManager: React.FC = () => {
       description: `Esportazione in formato ODT della ricostruzione ${id} in corso...`,
     });
     
-    // Simulazione del completamento dell'esportazione
     setTimeout(() => {
       toast({
         title: "Esportazione completata",
@@ -152,7 +148,7 @@ const LegalReconstructionManager: React.FC = () => {
               ...rec, 
               status: "approved", 
               approvalDate: new Date().toISOString(),
-              approvedBy: "Admin", // In un'applicazione reale, questo verrebbe dall'utente loggato
+              approvedBy: "Admin",
               decree: {
                 decreeName: "Decreto di Ricostruzione Carriera a Sentenza",
                 decreeNumber: `RIC-LEG-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000)}`,
@@ -180,7 +176,7 @@ const LegalReconstructionManager: React.FC = () => {
               ...rec, 
               status: "rejected", 
               approvalDate: new Date().toISOString(),
-              approvedBy: "Admin" // In un'applicazione reale, questo verrebbe dall'utente loggato
+              approvedBy: "Admin"
             } 
           : rec
       )
@@ -339,7 +335,6 @@ const LegalReconstructionManager: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Dialogo per nuova ricostruzione a sentenza */}
       <Dialog open={showNewReconDialog} onOpenChange={setShowNewReconDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -396,7 +391,10 @@ const LegalReconstructionManager: React.FC = () => {
               <div className="space-y-2">
                 <Label htmlFor="status">Stato</Label>
                 <Select 
-                  onValueChange={(value) => setNewRecon(prev => ({...prev, status: value}))}
+                  onValueChange={(value: string) => {
+                    const statusValue = value as ReconstructionStatus;
+                    setNewRecon(prev => ({...prev, status: statusValue}));
+                  }}
                   defaultValue="submitted"
                 >
                   <SelectTrigger>
@@ -459,7 +457,6 @@ const LegalReconstructionManager: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Dialogo per caricamento sentenza */}
       <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -521,7 +518,6 @@ const LegalReconstructionManager: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Dialogo dettagli ricostruzione */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
