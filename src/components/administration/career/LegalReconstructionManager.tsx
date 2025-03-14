@@ -16,6 +16,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 
+// Define the status type to match the LegalReconstruction interface
+type ReconstructionStatus = "draft" | "submitted" | "processing" | "approved" | "rejected";
+
 const LegalReconstructionManager: React.FC = () => {
   const [legalRecons, setLegalRecons] = useState<LegalReconstruction[]>(mockLegalRecons);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,7 +35,7 @@ const LegalReconstructionManager: React.FC = () => {
     sentenceNumber: "",
     sentenceDate: new Date().toISOString().split('T')[0],
     servicePeriods: [],
-    status: "submitted",
+    status: "submitted" as ReconstructionStatus, // Fix by explicitly casting to the correct type
     notes: "",
     legalNotes: "",
     reconstructionType: "legal"
@@ -91,7 +94,7 @@ const LegalReconstructionManager: React.FC = () => {
       requestDate: new Date().toISOString(),
       reconstructionType: "legal",
       servicePeriods: [],
-      status: "submitted",
+      status: "submitted", // This is now properly typed
       submissionDate: new Date().toISOString(),
       courtName: newRecon.courtName || "",
       sentenceNumber: newRecon.sentenceNumber || "",
@@ -112,14 +115,14 @@ const LegalReconstructionManager: React.FC = () => {
       description: `Ricostruzione a sentenza per ${reconToAdd.teacherName} creata con successo`,
     });
     
-    // Reset form
+    // Reset form - fix status type here as well
     setNewRecon({
       teacherName: "",
       courtName: "",
       sentenceNumber: "",
       sentenceDate: new Date().toISOString().split('T')[0],
       servicePeriods: [],
-      status: "submitted",
+      status: "submitted" as ReconstructionStatus, // Fix by explicitly casting
       notes: "",
       legalNotes: "",
       reconstructionType: "legal"
