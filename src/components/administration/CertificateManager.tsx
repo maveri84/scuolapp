@@ -240,10 +240,17 @@ const CertificateManager: React.FC = () => {
         description: `Il certificato "${values.name}" è stato aggiornato con successo.`,
       });
     } else {
-      // Add new certificate
+      // Add new certificate - Fix the type issue here
+      // Make sure all required properties are provided
       const newCert: Certificate = {
         id: `cert_${Date.now()}`,
-        ...values
+        name: values.name,
+        type: values.type,
+        target: values.target,
+        description: values.description,
+        content: values.content,
+        includeHeader: values.includeHeader,
+        includeFooter: values.includeFooter
       };
       setCertificates(prev => [...prev, newCert]);
       toast({
