@@ -22,6 +22,17 @@ export interface PreTenureRecognition {
     decreeUrl?: string;
   };
   notes: string;
+  exportFormats?: {
+    odt?: boolean;
+    pdf?: boolean;
+  };
+  parameters?: {
+    recognitionPercentages?: {
+      firstFourYears: number;
+      remainingYears: number;
+    };
+    minimumServiceDays?: number;
+  };
 }
 
 // Mock data for testing
@@ -87,6 +98,13 @@ export const mockPreTenureRecognitions: PreTenureRecognition[] = [
       decreeNumber: "PRE-2023-078",
       decreeDate: "2023-11-10"
     },
-    notes: "Riconoscimento servizio pre-ruolo per tre anni scolastici completi"
+    notes: "Riconoscimento servizio pre-ruolo per tre anni scolastici completi",
+    parameters: {
+      recognitionPercentages: {
+        firstFourYears: 100,
+        remainingYears: 66.67
+      },
+      minimumServiceDays: 180
+    }
   }
 ];

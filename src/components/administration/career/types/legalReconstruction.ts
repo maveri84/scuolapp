@@ -9,6 +9,10 @@ export interface LegalReconstruction extends CareerReconstruction {
   sentenceDate: string;
   sentenceUrl?: string;
   legalNotes: string;
+  exportFormats?: {
+    odt?: boolean;
+    pdf?: boolean;
+  };
 }
 
 // Mock data for testing

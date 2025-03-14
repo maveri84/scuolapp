@@ -6,11 +6,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Calculator, Calendar, Clock, Download, Eye, FileText, GraduationCap, Info, Minus, Plus, Search, X } from "lucide-react";
+import { Calculator, Calendar, Check, Clock, Download, Eye, FileText, GraduationCap, Info, Minus, Plus, Search, Settings, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 import { ServicePeriod, PreTenureRecognition, mockPreTenureRecognitions } from "./types";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,7 +26,17 @@ const PreTenureRecognitionManager: React.FC = () => {
   const [showNewRecognitionDialog, setShowNewRecognitionDialog] = useState(false);
   const [showCalculatorDialog, setShowCalculatorDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showParametersDialog, setShowParametersDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("active");
   const [selectedRecognition, setSelectedRecognition] = useState<PreTenureRecognition | null>(null);
+  
+  const [parameters, setParameters] = useState({
+    firstFourYearsPercentage: 100,
+    remainingYearsPercentage: 66.67,
+    minimumServiceDays: 180,
+    allowPartialSchoolYears: true,
+    countSummerHolidays: true
+  });
   
   const [newRecognition, setNewRecognition] = useState<Partial<PreTenureRecognition>>({
     teacherName: "",
@@ -47,14 +63,32 @@ const PreTenureRecognitionManager: React.FC = () => {
     isValid: true
   });
   
+  // Form per il calcolo
+  const calculatorForm = useForm({
+    defaultValues: {
+      totalYears: 0,
+      additionalMonths: 0,
+      additionalDays: 0,
+      category: "Docente" as "Docente" | "ATA" | "Dirigente"
+    }
+  });
+  
   const { toast } = useToast();
   
-  // Filter recognitions based on search term
-  const filteredRecognitions = recognitions.filter(
-    rec => 
+  // Filter recognitions based on search term and active tab
+  const filteredRecognitions = recognitions
+    .filter(rec => 
       rec.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rec.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    )
+    .filter(rec => {
+      if (activeTab === "active") {
+        return ["draft", "submitted", "processing", "approved"].includes(rec.status);
+      } else if (activeTab === "archived") {
+        return rec.status === "rejected";
+      }
+      return true;
+    });
   
   const handleNewRecognition = () => {
     setShowNewRecognitionDialog(true);
@@ -192,7 +226,18 @@ const PreTenureRecognitionManager: React.FC = () => {
       totalRecognizedYears: newRecognition.totalRecognizedYears || 0,
       status: "submitted",
       submissionDate: new Date().toISOString(),
-      notes: newRecognition.notes || ""
+      notes: newRecognition.notes || "",
+      parameters: {
+        recognitionPercentages: {
+          firstFourYears: parameters.firstFourYearsPercentage,
+          remainingYears: parameters.remainingYearsPercentage
+        },
+        minimumServiceDays: parameters.minimumServiceDays
+      },
+      exportFormats: {
+        odt: true,
+        pdf: true
+      }
     };
     
     setRecognitions(prev => [...prev, recognitionToAdd]);
@@ -215,6 +260,37 @@ const PreTenureRecognitionManager: React.FC = () => {
       notes: ""
     });
   };
+  
+  const handleCalculate = calculatorForm.handleSubmit((data) => {
+    // Implementazione del calcolo riconoscimento secondo parametri
+    const totalDays = (data.totalYears * 365) + (data.additionalMonths * 30) + data.additionalDays;
+    
+    // Primi 4 anni al 100%
+    const fourYearsInDays = 4 * 365;
+    let recognizedDays = 0;
+    
+    if (totalDays <= fourYearsInDays) {
+      // Se il servizio è meno di 4 anni, tutto al 100%
+      recognizedDays = totalDays;
+    } else {
+      // Primi 4 anni al 100%
+      recognizedDays = fourYearsInDays;
+      
+      // Resto al 66.67%
+      const remainingDays = totalDays - fourYearsInDays;
+      recognizedDays += remainingDays * (parameters.remainingYearsPercentage / 100);
+    }
+    
+    const recognizedYears = Math.floor(recognizedDays / 365);
+    const remainingDays = recognizedDays % 365;
+    const recognizedMonths = Math.floor(remainingDays / 30);
+    const finalDays = Math.floor(remainingDays % 30);
+    
+    toast({
+      title: "Calcolo completato",
+      description: `Servizio riconosciuto: ${recognizedYears} anni, ${recognizedMonths} mesi e ${finalDays} giorni`,
+    });
+  });
   
   const handleApproveRecognition = (id: string) => {
     setRecognitions(prev => 
@@ -267,6 +343,30 @@ const PreTenureRecognitionManager: React.FC = () => {
     setShowDetailsDialog(false);
   };
   
+  const handleExportOdt = (id: string) => {
+    toast({
+      title: "Esportazione in ODT",
+      description: `Esportazione in formato ODT del riconoscimento ${id} in corso...`,
+    });
+    
+    // Simulazione del completamento dell'esportazione
+    setTimeout(() => {
+      toast({
+        title: "Esportazione completata",
+        description: "Il documento ODT è stato generato con successo",
+      });
+    }, 1500);
+  };
+  
+  const handleSaveParameters = () => {
+    // Salva i parametri e aggiorna riconoscimenti esistenti
+    toast({
+      title: "Parametri salvati",
+      description: "Le nuove impostazioni sono state salvate con successo",
+    });
+    setShowParametersDialog(false);
+  };
+  
   const getStatusBadge = (status: string) => {
     switch(status) {
       case "approved":
@@ -296,6 +396,10 @@ const PreTenureRecognitionManager: React.FC = () => {
           />
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowParametersDialog(true)}>
+            <Settings className="mr-2 h-4 w-4" />
+            Parametri
+          </Button>
           <Button variant="outline" onClick={handleCalculator}>
             <Calculator className="mr-2 h-4 w-4" />
             Calcolatore
@@ -307,75 +411,81 @@ const PreTenureRecognitionManager: React.FC = () => {
         </div>
       </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Riconoscimenti Servizio Pre-Ruolo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Dipendente</TableHead>
-                <TableHead>Data Richiesta</TableHead>
-                <TableHead>Servizio Riconosciuto</TableHead>
-                <TableHead>Periodi</TableHead>
-                <TableHead>Stato</TableHead>
-                <TableHead className="w-[120px]">Azioni</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRecognitions.length > 0 ? (
-                filteredRecognitions.map((recognition) => (
-                  <TableRow key={recognition.id}>
-                    <TableCell className="font-medium">{recognition.teacherName}</TableCell>
-                    <TableCell>{new Date(recognition.requestDate).toLocaleDateString('it-IT')}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1 text-blue-500" />
-                        <span>
-                          {recognition.totalRecognizedYears} anni, {recognition.totalRecognizedMonths % 12} mesi
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{recognition.servicePeriods.length}</TableCell>
-                    <TableCell>{getStatusBadge(recognition.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="icon" onClick={() => handleViewDetails(recognition.id)}>
-                          <Eye className="h-4 w-4" />
-                          <span className="sr-only">Visualizza</span>
-                        </Button>
-                        {recognition.decree && (
-                          <Button variant="outline" size="icon">
-                            <Download className="h-4 w-4" />
-                            <span className="sr-only">Scarica decreto</span>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="active">Riconoscimenti Attivi</TabsTrigger>
+          <TabsTrigger value="archived">Archiviati</TabsTrigger>
+          <TabsTrigger value="all">Tutti</TabsTrigger>
+        </TabsList>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Riconoscimenti Servizio Pre-Ruolo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Dipendente</TableHead>
+                  <TableHead>Data Richiesta</TableHead>
+                  <TableHead>Servizio Riconosciuto</TableHead>
+                  <TableHead>Periodi</TableHead>
+                  <TableHead>Stato</TableHead>
+                  <TableHead className="w-[120px]">Azioni</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRecognitions.length > 0 ? (
+                  filteredRecognitions.map((recognition) => (
+                    <TableRow key={recognition.id}>
+                      <TableCell className="font-medium">{recognition.teacherName}</TableCell>
+                      <TableCell>{new Date(recognition.requestDate).toLocaleDateString('it-IT')}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1 text-blue-500" />
+                          <span>
+                            {recognition.totalRecognizedYears} anni, {recognition.totalRecognizedMonths % 12} mesi
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{recognition.servicePeriods.length}</TableCell>
+                      <TableCell>{getStatusBadge(recognition.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="icon" onClick={() => handleViewDetails(recognition.id)}>
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">Visualizza</span>
                           </Button>
-                        )}
-                        <Button variant="outline" size="icon">
-                          <Calendar className="h-4 w-4" />
-                          <span className="sr-only">Periodi</span>
-                        </Button>
-                      </div>
+                          <Button variant="outline" size="icon" onClick={() => handleExportOdt(recognition.id)} title="Esporta in ODT">
+                            <Download className="h-4 w-4" />
+                            <span className="sr-only">Esporta in ODT</span>
+                          </Button>
+                          <Button variant="outline" size="icon" title="Visualizza periodi">
+                            <Calendar className="h-4 w-4" />
+                            <span className="sr-only">Periodi</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                      {searchTerm ? (
+                        <>
+                          Nessun risultato per "<strong>{searchTerm}</strong>"
+                        </>
+                      ) : (
+                        "Nessun riconoscimento di servizio pre-ruolo trovato"
+                      )}
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                    {searchTerm ? (
-                      <>
-                        Nessun risultato per "<strong>{searchTerm}</strong>"
-                      </>
-                    ) : (
-                      "Nessun riconoscimento di servizio pre-ruolo trovato"
-                    )}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </Tabs>
 
       <Card>
         <CardHeader>
@@ -597,12 +707,27 @@ const PreTenureRecognitionManager: React.FC = () => {
             
             <div className="grid grid-cols-1 gap-2">
               <Label htmlFor="notes">Note</Label>
-              <Input 
+              <Textarea 
                 id="notes" 
-                value={newRecognition.notes} 
+                value={newRecognition.notes || ""} 
                 onChange={(e) => setNewRecognition(prev => ({...prev, notes: e.target.value}))}
                 placeholder="Inserisci eventuali note"
+                rows={2}
               />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Formato di Esportazione</Label>
+              <div className="flex gap-4 mt-1">
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="exportOdt" className="h-4 w-4" defaultChecked />
+                  <Label htmlFor="exportOdt" className="font-normal text-sm">ODT</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="exportPdf" className="h-4 w-4" defaultChecked />
+                  <Label htmlFor="exportPdf" className="font-normal text-sm">PDF</Label>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -627,51 +752,121 @@ const PreTenureRecognitionManager: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="totalYears">Anni Totali di Servizio Pre-Ruolo</Label>
-              <Input 
-                id="totalYears" 
-                type="number"
-                min="0"
-                max="50"
-                placeholder="Inserisci il numero totale di anni"
+          <Form {...calculatorForm}>
+            <form onSubmit={handleCalculate} className="space-y-4 py-4">
+              <FormField
+                control={calculatorForm.control}
+                name="totalYears"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Anni Totali di Servizio Pre-Ruolo</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number"
+                        min="0"
+                        max="50"
+                        placeholder="Inserisci il numero totale di anni"
+                        {...field}
+                        onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="totalMonths">Mesi Aggiuntivi</Label>
-              <Input 
-                id="totalMonths" 
-                type="number"
-                min="0"
-                max="11"
-                placeholder="Inserisci eventuali mesi aggiuntivi"
+              
+              <FormField
+                control={calculatorForm.control}
+                name="additionalMonths"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mesi Aggiuntivi</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number"
+                        min="0"
+                        max="11"
+                        placeholder="Inserisci eventuali mesi aggiuntivi"
+                        {...field}
+                        onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <Button className="w-full" onClick={() => {
-              toast({
-                title: "Calcolo completato",
-                description: "Secondo l'Art. 485 D.Lgs. n. 297/1994, il servizio pre-ruolo viene riconosciuto nei seguenti termini: primi 4 anni per intero, ulteriore servizio per 2/3.",
-              });
-            }}>
-              <Calculator className="mr-2 h-4 w-4" />
-              Calcola Riconoscimento
-            </Button>
-            
-            <div className="bg-gray-50 p-4 rounded-md">
-              <h4 className="font-medium text-sm">Risultati calcolo:</h4>
-              <div className="mt-2 text-sm">
-                <div className="grid grid-cols-2 gap-1">
-                  <div>Primi 4 anni:</div>
-                  <div className="font-semibold">4 anni</div>
-                  
-                  <div>Ulteriore servizio (2/3):</div>
-                  <div className="font-semibold">0 anni</div>
-                  
-                  <div>Totale riconosciuto:</div>
-                  <div className="font-semibold text-green-600">4 anni</div>
+              
+              <FormField
+                control={calculatorForm.control}
+                name="additionalDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Giorni Aggiuntivi</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number"
+                        min="0"
+                        max="30"
+                        placeholder="Inserisci eventuali giorni aggiuntivi"
+                        {...field}
+                        onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={calculatorForm.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categoria</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona categoria" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Docente">Docente</SelectItem>
+                        <SelectItem value="ATA">ATA</SelectItem>
+                        <SelectItem value="Dirigente">Dirigente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+              
+              <Button type="submit" className="w-full">
+                <Calculator className="mr-2 h-4 w-4" />
+                Calcola Riconoscimento
+              </Button>
+            </form>
+          </Form>
+          
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h4 className="font-medium text-sm">Risultati calcolo:</h4>
+            <div className="mt-2 text-sm">
+              <div className="grid grid-cols-2 gap-1">
+                <div>Primi 4 anni:</div>
+                <div className="font-semibold">{Math.min(calculatorForm.getValues().totalYears, 4)} anni</div>
+                
+                <div>Ulteriore servizio (2/3):</div>
+                <div className="font-semibold">
+                  {calculatorForm.getValues().totalYears > 4 
+                    ? ((calculatorForm.getValues().totalYears - 4) * (parameters.remainingYearsPercentage / 100)).toFixed(2) + ' anni'
+                    : '0 anni'
+                  }
+                </div>
+                
+                <div>Totale riconosciuto:</div>
+                <div className="font-semibold text-green-600">
+                  {calculatorForm.getValues().totalYears <= 4 
+                    ? calculatorForm.getValues().totalYears
+                    : (4 + ((calculatorForm.getValues().totalYears - 4) * (parameters.remainingYearsPercentage / 100))).toFixed(2)
+                  } anni
                 </div>
               </div>
             </div>
@@ -680,6 +875,10 @@ const PreTenureRecognitionManager: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCalculatorDialog(false)}>
               Chiudi
+            </Button>
+            <Button variant="default" onClick={() => handleExportOdt("calculator")} title="Esporta in ODT">
+              <Download className="mr-2 h-4 w-4" />
+              Esporta Calcolo
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -741,9 +940,21 @@ const PreTenureRecognitionManager: React.FC = () => {
                     
                     <div className="text-sm font-medium">Periodi:</div>
                     <div className="text-sm">{selectedRecognition.servicePeriods.length}</div>
+                    
+                    {selectedRecognition.parameters?.recognitionPercentages && (
+                      <>
+                        <div className="text-sm font-medium">Parametri di calcolo:</div>
+                        <div className="text-sm">
+                          Primi 4 anni: {selectedRecognition.parameters.recognitionPercentages.firstFourYears}%, 
+                          Rimanenti: {selectedRecognition.parameters.recognitionPercentages.remainingYears}%
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
+              
+              <Separator />
               
               <div className="space-y-2">
                 <div className="font-semibold">Periodi di servizio</div>
@@ -782,6 +993,29 @@ const PreTenureRecognitionManager: React.FC = () => {
                 </div>
               )}
               
+              {selectedRecognition.status === "approved" && selectedRecognition.decree && (
+                <>
+                  <Separator />
+                  
+                  <div className="space-y-2">
+                    <div className="font-semibold">Decreto</div>
+                    <Alert className="bg-green-50 border-green-200">
+                      <Check className="h-4 w-4 text-green-600" />
+                      <AlertTitle className="text-green-800">{selectedRecognition.decree.decreeName}</AlertTitle>
+                      <AlertDescription className="text-green-700">
+                        N. {selectedRecognition.decree.decreeNumber} del {new Date(selectedRecognition.decree.decreeDate).toLocaleDateString('it-IT')}
+                      </AlertDescription>
+                    </Alert>
+                    <div className="flex justify-end">
+                      <Button variant="outline" className="text-sm" onClick={() => handleExportOdt(selectedRecognition.id)}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Esporta decreto in ODT
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
+              
               <div className="pt-4 flex justify-between">
                 <div>
                   {selectedRecognition.status === "submitted" && (
@@ -791,7 +1025,7 @@ const PreTenureRecognitionManager: React.FC = () => {
                         Respingi
                       </Button>
                       <Button onClick={() => handleApproveRecognition(selectedRecognition.id)}>
-                        <FileText className="mr-2 h-4 w-4" />
+                        <Check className="mr-2 h-4 w-4" />
                         Approva
                       </Button>
                     </div>
@@ -803,6 +1037,138 @@ const PreTenureRecognitionManager: React.FC = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Dialogo parametri */}
+      <Dialog open={showParametersDialog} onOpenChange={setShowParametersDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Parametri di Riconoscimento Pre-Ruolo</DialogTitle>
+            <DialogDescription>
+              Configura i parametri per il calcolo del riconoscimento del servizio pre-ruolo
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="space-y-3">
+              <div className="font-medium">Percentuali di Riconoscimento</div>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="flex justify-between">
+                    <span>Primi 4 anni: {parameters.firstFourYearsPercentage}%</span>
+                    <span className="text-sm text-muted-foreground">Art. 485 D.Lgs. 297/94</span>
+                  </Label>
+                  <Slider 
+                    min={0} 
+                    max={100} 
+                    step={1}
+                    value={[parameters.firstFourYearsPercentage]} 
+                    onValueChange={(value) => setParameters(prev => ({...prev, firstFourYearsPercentage: value[0]}))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="flex justify-between">
+                    <span>Anni successivi: {parameters.remainingYearsPercentage}%</span>
+                    <span className="text-sm text-muted-foreground">Art. 485 D.Lgs. 297/94</span>
+                  </Label>
+                  <Slider 
+                    min={0} 
+                    max={100} 
+                    step={0.01}
+                    value={[parameters.remainingYearsPercentage]} 
+                    onValueChange={(value) => setParameters(prev => ({...prev, remainingYearsPercentage: value[0]}))}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div className="space-y-3">
+              <div className="font-medium">Requisiti Minimi</div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="minimumDays">Giorni minimi per anno scolastico</Label>
+                  <Input 
+                    id="minimumDays" 
+                    type="number"
+                    min="0"
+                    max="365"
+                    value={parameters.minimumServiceDays}
+                    onChange={(e) => setParameters(prev => ({...prev, minimumServiceDays: parseInt(e.target.value) || 180}))}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Servizio minimo per considerare valido un anno scolastico.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="partialYears" className="cursor-pointer">Riconosci anni scolastici parziali</Label>
+                  <Switch 
+                    id="partialYears" 
+                    checked={parameters.allowPartialSchoolYears}
+                    onCheckedChange={(checked) => setParameters(prev => ({...prev, allowPartialSchoolYears: checked}))}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Se attivo, vengono riconosciuti anche periodi di servizio inferiori all'anno scolastico, in proporzione.
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="summerHolidays" className="cursor-pointer">Includi ferie estive nel conteggio</Label>
+                  <Switch 
+                    id="summerHolidays" 
+                    checked={parameters.countSummerHolidays}
+                    onCheckedChange={(checked) => setParameters(prev => ({...prev, countSummerHolidays: checked}))}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Se attivo, include anche i periodi di ferie estive nel calcolo del servizio.
+                </p>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div className="space-y-3">
+              <div className="font-medium">Formati di Esportazione</div>
+              
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="formatOdt" className="h-4 w-4" defaultChecked />
+                  <Label htmlFor="formatOdt" className="font-normal text-sm">ODT (OpenDocument Text)</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="formatPdf" className="h-4 w-4" defaultChecked />
+                  <Label htmlFor="formatPdf" className="font-normal text-sm">PDF (Portable Document Format)</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="formatDoc" className="h-4 w-4" />
+                  <Label htmlFor="formatDoc" className="font-normal text-sm">DOC/DOCX (Microsoft Word)</Label>
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Seleziona i formati disponibili per l'esportazione dei documenti.
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowParametersDialog(false)}>
+              Annulla
+            </Button>
+            <Button onClick={handleSaveParameters}>
+              Salva Parametri
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
