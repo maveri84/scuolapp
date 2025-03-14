@@ -14,7 +14,8 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Classes from "./pages/Classes"; 
 import Faculty from "./pages/Faculty";
-import Calendar from "./pages/Calendar"; // Import the Calendar page
+import Calendar from "./pages/Calendar";
+import Customization from "./pages/Customization"; // Importiamo la nuova pagina
 
 import "./App.css";
 
@@ -91,6 +92,14 @@ function App() {
           element={
             <DashboardLayout>
               <Faculty />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/customization"
+          element={
+            <DashboardLayout>
+              <Customization />
             </DashboardLayout>
           }
         />
