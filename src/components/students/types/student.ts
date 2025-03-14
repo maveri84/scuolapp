@@ -73,6 +73,8 @@ export interface Student {
   independentExit: boolean;
   localExitPermission: boolean;
   privacyConsent: boolean;
+  disabilityComma1?: boolean; // Added disability Comma 1 selection
+  disabilityComma3?: boolean; // Added disability Comma 3 selection
   
   notes: string;
 }
@@ -131,11 +133,13 @@ export const mockStudentDetail: Student = {
   specialNeeds: false,
   accommodations: "",
   
-  // New fields with default values
+  // Fields with default values
   useSchoolBus: false,
   independentExit: false,
   localExitPermission: false,
   privacyConsent: true,
+  disabilityComma1: false,
+  disabilityComma3: false,
   
   notes: "Partecipa attivamente alle attività extracurriculari. Rappresentante di classe per l'anno 2023-2024."
 };

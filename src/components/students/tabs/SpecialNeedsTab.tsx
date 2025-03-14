@@ -16,6 +16,8 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, isEditMode, 
   const [isH, setIsH] = useState(false);
   const [isDSA, setIsDSA] = useState(false);
   const [isBES, setIsBES] = useState(false);
+  const [isComma1, setIsComma1] = useState(student.disabilityComma1 || false);
+  const [isComma3, setIsComma3] = useState(student.disabilityComma3 || false);
   const [notes, setNotes] = useState(student.notes || "");
   const [useSchoolBus, setUseSchoolBus] = useState(student.useSchoolBus || false);
   const [independentExit, setIndependentExit] = useState(student.independentExit || false);
@@ -63,6 +65,16 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, isEditMode, 
   const handleHChange = (checked: boolean) => {
     setIsH(checked);
     handleSpecialNeedsChange();
+    
+    // Reset comma selections if disability is turned off
+    if (!checked) {
+      setIsComma1(false);
+      setIsComma3(false);
+      if (onChange) {
+        onChange("disabilityComma1", false);
+        onChange("disabilityComma3", false);
+      }
+    }
   };
   
   const handleDSAChange = (checked: boolean) => {
@@ -73,6 +85,20 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, isEditMode, 
   const handleBESChange = (checked: boolean) => {
     setIsBES(checked);
     handleSpecialNeedsChange();
+  };
+  
+  const handleComma1Change = (checked: boolean) => {
+    setIsComma1(checked);
+    if (onChange) {
+      onChange("disabilityComma1", checked);
+    }
+  };
+  
+  const handleComma3Change = (checked: boolean) => {
+    setIsComma3(checked);
+    if (onChange) {
+      onChange("disabilityComma3", checked);
+    }
   };
   
   useEffect(() => {
@@ -88,9 +114,13 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, isEditMode, 
         isH={isH}
         isDSA={isDSA}
         isBES={isBES}
+        isComma1={isComma1}
+        isComma3={isComma3}
         onHChange={handleHChange}
         onDSAChange={handleDSAChange}
         onBESChange={handleBESChange}
+        onComma1Change={handleComma1Change}
+        onComma3Change={handleComma3Change}
         isDisabled={!isEditMode}
       />
       
