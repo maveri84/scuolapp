@@ -21,23 +21,35 @@ const Students = () => {
   const [selectedClass, setSelectedClass] = useState<string | undefined>(undefined);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const handleStudentSelect = (studentId: string) => {
     setSelectedStudent(studentId);
     setSelectedTab("detail");
     setShowAddForm(false);
+    setIsEditMode(false);
+  };
+
+  const handleStudentEdit = (studentId: string) => {
+    setSelectedStudent(studentId);
+    setSelectedTab("detail");
+    setShowAddForm(false);
+    setIsEditMode(true);
+    toast.info("Modalità modifica attivata");
   };
 
   const handleBackToList = () => {
     setSelectedStudent(null);
     setSelectedTab("list");
     setShowAddForm(false);
+    setIsEditMode(false);
   };
 
   const handleNewStudent = () => {
     setSelectedStudent(null);
     setShowAddForm(true);
     setSelectedTab("add");
+    setIsEditMode(false);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -77,7 +89,7 @@ const Students = () => {
             </TabsTrigger>
             <TabsTrigger value="detail" disabled={!selectedStudent}>
               <FileText className="mr-2 h-4 w-4" />
-              Dettaglio Studente
+              {isEditMode ? "Modifica Studente" : "Dettaglio Studente"}
             </TabsTrigger>
             <TabsTrigger value="add" disabled={!showAddForm}>
               <UserPlus className="mr-2 h-4 w-4" />
@@ -129,7 +141,10 @@ const Students = () => {
 
         <TabsContent value="list" className="mt-0">
           <Card className="p-0">
-            <StudentsList onStudentSelect={handleStudentSelect} />
+            <StudentsList 
+              onStudentSelect={handleStudentSelect} 
+              onStudentEdit={handleStudentEdit}
+            />
           </Card>
         </TabsContent>
 
@@ -140,8 +155,16 @@ const Students = () => {
                 <Button variant="outline" onClick={handleBackToList}>
                   ← Torna alla lista
                 </Button>
+                {isEditMode && (
+                  <span className="ml-4 text-blue-500 font-medium">
+                    Modalità modifica attiva
+                  </span>
+                )}
               </div>
-              <StudentDetailWrapper studentId={selectedStudent} />
+              <StudentDetailWrapper 
+                studentId={selectedStudent} 
+                isEditMode={isEditMode}
+              />
             </>
           )}
         </TabsContent>

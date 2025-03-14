@@ -75,9 +75,18 @@ const mockStudents = [
 
 interface StudentsListProps {
   onStudentSelect: (studentId: string) => void;
+  onStudentEdit?: (studentId: string) => void;
 }
 
-const StudentsList: React.FC<StudentsListProps> = ({ onStudentSelect }) => {
+const StudentsList: React.FC<StudentsListProps> = ({ onStudentSelect, onStudentEdit }) => {
+  const handleEditClick = (studentId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onStudentEdit) {
+      onStudentEdit(studentId);
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -115,7 +124,7 @@ const StudentsList: React.FC<StudentsListProps> = ({ onStudentSelect }) => {
                     <Eye className="mr-2 h-4 w-4" />
                     Visualizza
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleEditClick(student.id, e)}>
                     <FileEdit className="mr-2 h-4 w-4" />
                     Modifica
                   </DropdownMenuItem>
