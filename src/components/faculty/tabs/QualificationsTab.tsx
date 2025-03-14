@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FileUp, GraduationCap, Certificate } from "lucide-react";
+import { PlusCircle, FileUp, GraduationCap, Award } from "lucide-react";
 import { Teacher } from "../types/faculty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -29,7 +29,7 @@ const QualificationsTab: React.FC<QualificationsTabProps> = ({ teacher, onChange
               Titoli di Studio
             </TabsTrigger>
             <TabsTrigger value="certifications">
-              <Certificate className="mr-2 h-4 w-4" />
+              <Award className="mr-2 h-4 w-4" />
               Abilitazioni
             </TabsTrigger>
             <TabsTrigger value="training">
