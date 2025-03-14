@@ -20,6 +20,7 @@ interface PhysicalEducationExemptionProps {
   onExemptionChange: (field: keyof PhysicalEducationExemptionType, value: string) => void;
   onStartDateChange: (date: Date | undefined) => void;
   onEndDateChange: (date: Date | undefined) => void;
+  isDisabled?: boolean;
 }
 
 const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
@@ -31,6 +32,7 @@ const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
   onExemptionChange,
   onStartDateChange,
   onEndDateChange,
+  isDisabled = false,
 }) => {
   return (
     <div className="border p-4 rounded-md">
@@ -41,6 +43,7 @@ const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
             id="hasExemption" 
             checked={hasExemption} 
             onCheckedChange={onExemptionSwitchChange}
+            disabled={isDisabled}
           />
           <Label htmlFor="hasExemption" className="mb-0">
             {hasExemption ? 'Attivo' : 'Non attivo'}
@@ -60,6 +63,7 @@ const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
                     "w-full justify-start text-left font-normal",
                     !startDate && "text-muted-foreground"
                   )}
+                  disabled={isDisabled}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {startDate ? format(startDate, "dd/MM/yyyy") : <span>Seleziona data</span>}
@@ -72,6 +76,7 @@ const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
                   onSelect={onStartDateChange}
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
+                  disabled={isDisabled}
                 />
               </PopoverContent>
             </Popover>
@@ -87,6 +92,7 @@ const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
                     "w-full justify-start text-left font-normal",
                     !endDate && "text-muted-foreground"
                   )}
+                  disabled={isDisabled}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {endDate ? format(endDate, "dd/MM/yyyy") : <span>Seleziona data</span>}
@@ -99,6 +105,7 @@ const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
                   onSelect={onEndDateChange}
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
+                  disabled={isDisabled}
                 />
               </PopoverContent>
             </Popover>
@@ -111,6 +118,7 @@ const PhysicalEducationExemption: React.FC<PhysicalEducationExemptionProps> = ({
               value={exemption.reason}
               placeholder="Specificare il motivo dell'esonero"
               onChange={(e) => onExemptionChange('reason', e.target.value)}
+              disabled={isDisabled}
             />
           </div>
         </div>

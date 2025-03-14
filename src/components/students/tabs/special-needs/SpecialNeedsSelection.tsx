@@ -11,6 +11,7 @@ interface SpecialNeedsSelectionProps {
   onHChange: (checked: boolean) => void;
   onDSAChange: (checked: boolean) => void;
   onBESChange: (checked: boolean) => void;
+  isDisabled?: boolean;
 }
 
 const SpecialNeedsSelection: React.FC<SpecialNeedsSelectionProps> = ({
@@ -20,6 +21,7 @@ const SpecialNeedsSelection: React.FC<SpecialNeedsSelectionProps> = ({
   onHChange,
   onDSAChange,
   onBESChange,
+  isDisabled = false,
 }) => {
   return (
     <Card>
@@ -37,6 +39,7 @@ const SpecialNeedsSelection: React.FC<SpecialNeedsSelectionProps> = ({
             id="is-h" 
             checked={isH}
             onCheckedChange={onHChange}
+            disabled={isDisabled}
           />
         </div>
         
@@ -49,6 +52,7 @@ const SpecialNeedsSelection: React.FC<SpecialNeedsSelectionProps> = ({
             id="is-dsa" 
             checked={isDSA}
             onCheckedChange={onDSAChange}
+            disabled={isDisabled}
           />
         </div>
         
@@ -61,6 +65,7 @@ const SpecialNeedsSelection: React.FC<SpecialNeedsSelectionProps> = ({
             id="is-bes" 
             checked={isBES}
             onCheckedChange={onBESChange}
+            disabled={isDisabled}
           />
         </div>
       </CardContent>

@@ -13,6 +13,7 @@ interface StudentPermissionsProps {
   privacyConsent: boolean;
   onToggleChange: (field: string, value: boolean) => void;
   onUploadClick: () => void;
+  isDisabled?: boolean;
 }
 
 const StudentPermissions: React.FC<StudentPermissionsProps> = ({
@@ -22,6 +23,7 @@ const StudentPermissions: React.FC<StudentPermissionsProps> = ({
   privacyConsent,
   onToggleChange,
   onUploadClick,
+  isDisabled = false,
 }) => {
   return (
     <Card>
@@ -42,6 +44,7 @@ const StudentPermissions: React.FC<StudentPermissionsProps> = ({
             id="use-school-bus" 
             checked={useSchoolBus}
             onCheckedChange={(checked) => onToggleChange('useSchoolBus', checked)}
+            disabled={isDisabled}
           />
         </div>
         
@@ -57,6 +60,7 @@ const StudentPermissions: React.FC<StudentPermissionsProps> = ({
             id="independent-exit" 
             checked={independentExit}
             onCheckedChange={(checked) => onToggleChange('independentExit', checked)}
+            disabled={isDisabled}
           />
         </div>
 
@@ -73,12 +77,13 @@ const StudentPermissions: React.FC<StudentPermissionsProps> = ({
               id="local-exit" 
               checked={localExitPermission}
               onCheckedChange={(checked) => onToggleChange('localExitPermission', checked)}
+              disabled={isDisabled}
             />
           </div>
           
           {localExitPermission && (
             <div className="pt-2">
-              <Button variant="outline" className="w-full" onClick={onUploadClick}>
+              <Button variant="outline" className="w-full" onClick={onUploadClick} disabled={isDisabled}>
                 <Upload className="mr-2 h-4 w-4" />
                 Carica Autorizzazione Firmata
               </Button>
@@ -99,12 +104,13 @@ const StudentPermissions: React.FC<StudentPermissionsProps> = ({
               id="privacy-consent" 
               checked={privacyConsent}
               onCheckedChange={(checked) => onToggleChange('privacyConsent', checked)}
+              disabled={isDisabled}
             />
           </div>
           
           {privacyConsent && (
             <div className="pt-2">
-              <Button variant="outline" className="w-full" onClick={onUploadClick}>
+              <Button variant="outline" className="w-full" onClick={onUploadClick} disabled={isDisabled}>
                 <Upload className="mr-2 h-4 w-4" />
                 Carica Modulo Privacy Firmato
               </Button>

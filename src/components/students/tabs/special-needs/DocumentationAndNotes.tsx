@@ -11,6 +11,8 @@ interface DocumentationAndNotesProps {
   onNotesChange: (value: string) => void;
   onSave: () => void;
   onUpload: () => void;
+  isDisabled?: boolean;
+  showSaveButton?: boolean;
 }
 
 const DocumentationAndNotes: React.FC<DocumentationAndNotesProps> = ({
@@ -18,6 +20,8 @@ const DocumentationAndNotes: React.FC<DocumentationAndNotesProps> = ({
   onNotesChange,
   onSave,
   onUpload,
+  isDisabled = false,
+  showSaveButton = true,
 }) => {
   return (
     <Card>
@@ -43,7 +47,7 @@ const DocumentationAndNotes: React.FC<DocumentationAndNotesProps> = ({
               </div>
               <Button variant="ghost" size="sm">Visualizza</Button>
             </div>
-            <Button variant="outline" className="w-full" onClick={onUpload}>
+            <Button variant="outline" className="w-full" onClick={onUpload} disabled={isDisabled}>
               <Upload className="mr-2 h-4 w-4" />
               Carica Nuovo Documento
             </Button>
@@ -58,13 +62,16 @@ const DocumentationAndNotes: React.FC<DocumentationAndNotesProps> = ({
             value={notes}
             onChange={(e) => onNotesChange(e.target.value)}
             rows={5}
+            disabled={isDisabled}
           />
         </div>
         
-        <Button onClick={onSave}>
-          <Save className="mr-2 h-4 w-4" />
-          Salva Informazioni
-        </Button>
+        {showSaveButton && (
+          <Button onClick={onSave} disabled={isDisabled}>
+            <Save className="mr-2 h-4 w-4" />
+            Salva Informazioni
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
