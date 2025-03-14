@@ -1,8 +1,9 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Award, Book, Briefcase, FileText, GraduationCap, Redo, Settings, UserCheck } from "lucide-react";
+import { Award, Book, Briefcase, FileText, GraduationCap, Redo, UserCheck } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import CareerProgressionManager from "./CareerProgressionManager";
 import CareerReconstructionManager from "./CareerReconstructionManager";
 import LegalReconstructionManager from "./LegalReconstructionManager";
@@ -10,7 +11,19 @@ import PreTenureRecognitionManager from "./PreTenureRecognitionManager";
 import CareerDashboard from "./CareerDashboard";
 
 const CareerTab: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tabFromUrl = searchParams.get("tab") || "dashboard";
+  const [activeTab, setActiveTab] = useState(tabFromUrl);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    setSearchParams({ tab: activeTab });
+  }, [activeTab, setSearchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
 
   return (
     <div className="space-y-4">
@@ -22,7 +35,7 @@ const CareerTab: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
             <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-2">
               <TabsTrigger value="dashboard" className="flex items-center">
                 <Briefcase className="mr-2 h-4 w-4" />
