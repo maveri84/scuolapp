@@ -4,7 +4,7 @@ import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Save, Plus } from "lucide-react";
+import { Save, Plus, Calendar as CalendarIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { 
   Table,
@@ -14,7 +14,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Student, AcademicRecord } from "../types/student";
+import { Student, AcademicRecord, PhysicalEducationExemption } from "../types/student";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface AcademicTabProps {
   student: Student;
@@ -23,6 +27,16 @@ interface AcademicTabProps {
 
 const AcademicTab: React.FC<AcademicTabProps> = ({ student, onChange }) => {
   const [academicHistory, setAcademicHistory] = useState<AcademicRecord[]>(student.academicHistory || []);
+  const [hasExemption, setHasExemption] = useState(!!student.physicalEducationExemption);
+  const [exemption, setExemption] = useState<PhysicalEducationExemption>(
+    student.physicalEducationExemption || { startDate: "", endDate: "", reason: "" }
+  );
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    student.physicalEducationExemption?.startDate ? new Date(student.physicalEducationExemption.startDate) : undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    student.physicalEducationExemption?.endDate ? new Date(student.physicalEducationExemption.endDate) : undefined
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (onChange) {
@@ -33,6 +47,42 @@ const AcademicTab: React.FC<AcademicTabProps> = ({ student, onChange }) => {
   const handleSwitchChange = (checked: boolean) => {
     if (onChange) {
       onChange('attendsReligiousEducation', checked);
+    }
+  };
+
+  const handleExemptionSwitchChange = (checked: boolean) => {
+    setHasExemption(checked);
+    if (!checked && onChange) {
+      onChange('physicalEducationExemption', null);
+    }
+  };
+
+  const handleExemptionChange = (field: keyof PhysicalEducationExemption, value: string) => {
+    const updatedExemption = { ...exemption, [field]: value };
+    setExemption(updatedExemption);
+    
+    if (onChange) {
+      onChange('physicalEducationExemption', updatedExemption);
+    }
+  };
+
+  const handleStartDateChange = (date: Date | undefined) => {
+    setStartDate(date);
+    if (date && onChange) {
+      const formattedDate = format(date, "yyyy-MM-dd");
+      const updatedExemption = { ...exemption, startDate: formattedDate };
+      setExemption(updatedExemption);
+      onChange('physicalEducationExemption', updatedExemption);
+    }
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    setEndDate(date);
+    if (date && onChange) {
+      const formattedDate = format(date, "yyyy-MM-dd");
+      const updatedExemption = { ...exemption, endDate: formattedDate };
+      setExemption(updatedExemption);
+      onChange('physicalEducationExemption', updatedExemption);
     }
   };
 
@@ -100,6 +150,91 @@ const AcademicTab: React.FC<AcademicTabProps> = ({ student, onChange }) => {
                 </Label>
               </div>
             </div>
+          </div>
+
+          {/* Physical Education Exemption Section */}
+          <div className="border p-4 rounded-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Esonero Educazione Fisica</h3>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="hasExemption" 
+                  checked={hasExemption} 
+                  onCheckedChange={handleExemptionSwitchChange}
+                />
+                <Label htmlFor="hasExemption" className="mb-0">
+                  {hasExemption ? 'Attivo' : 'Non attivo'}
+                </Label>
+              </div>
+            </div>
+            
+            {hasExemption && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="exemption-start">Data Inizio</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !startDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "dd/MM/yyyy") : <span>Seleziona data</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={handleStartDateChange}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="exemption-end">Data Fine</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !endDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "dd/MM/yyyy") : <span>Seleziona data</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={handleEndDateChange}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="exemption-reason">Motivo dell'Esonero</Label>
+                  <Input
+                    id="exemption-reason"
+                    value={exemption.reason}
+                    placeholder="Specificare il motivo dell'esonero"
+                    onChange={(e) => handleExemptionChange('reason', e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

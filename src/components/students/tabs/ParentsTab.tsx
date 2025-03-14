@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save } from "lucide-react";
 import { Student } from "../types/student";
 
@@ -19,6 +20,29 @@ const ParentsTab: React.FC<ParentsTabProps> = ({ student, onChange }) => {
       onChange(e.target.id, e.target.value);
     }
   };
+
+  const handleSelectChange = (field: string, value: string) => {
+    if (onChange) {
+      onChange(field, value);
+    }
+  };
+
+  const maritalStatusOptions = [
+    { value: "single", label: "Celibe/Nubile" },
+    { value: "married", label: "Sposato/a" },
+    { value: "divorced", label: "Divorziato/a" },
+    { value: "separated", label: "Separato/a" },
+    { value: "widowed", label: "Vedovo/a" }
+  ];
+
+  const educationOptions = [
+    { value: "elementary", label: "Scuola Elementare" },
+    { value: "middle", label: "Scuola Media" },
+    { value: "high", label: "Diploma Superiore" },
+    { value: "bachelor", label: "Laurea Triennale" },
+    { value: "master", label: "Laurea Magistrale" },
+    { value: "phd", label: "Dottorato" }
+  ];
 
   return (
     <Card>
@@ -79,6 +103,42 @@ const ParentsTab: React.FC<ParentsTabProps> = ({ student, onChange }) => {
                   value={student.fatherOccupation} 
                   onChange={handleChange}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fatherEducation">Titolo di Studio</Label>
+                <Select 
+                  value={student.fatherEducation} 
+                  onValueChange={(value) => handleSelectChange("fatherEducation", value)}
+                >
+                  <SelectTrigger id="fatherEducation">
+                    <SelectValue placeholder="Seleziona titolo di studio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {educationOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fatherMaritalStatus">Stato Civile</Label>
+                <Select 
+                  value={student.fatherMaritalStatus} 
+                  onValueChange={(value) => handleSelectChange("fatherMaritalStatus", value)}
+                >
+                  <SelectTrigger id="fatherMaritalStatus">
+                    <SelectValue placeholder="Seleziona stato civile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {maritalStatusOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="fatherAddress">Indirizzo (se diverso da quello dello studente)</Label>
@@ -143,6 +203,42 @@ const ParentsTab: React.FC<ParentsTabProps> = ({ student, onChange }) => {
                   value={student.motherOccupation} 
                   onChange={handleChange}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="motherEducation">Titolo di Studio</Label>
+                <Select 
+                  value={student.motherEducation} 
+                  onValueChange={(value) => handleSelectChange("motherEducation", value)}
+                >
+                  <SelectTrigger id="motherEducation">
+                    <SelectValue placeholder="Seleziona titolo di studio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {educationOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="motherMaritalStatus">Stato Civile</Label>
+                <Select 
+                  value={student.motherMaritalStatus} 
+                  onValueChange={(value) => handleSelectChange("motherMaritalStatus", value)}
+                >
+                  <SelectTrigger id="motherMaritalStatus">
+                    <SelectValue placeholder="Seleziona stato civile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {maritalStatusOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="motherAddress">Indirizzo (se diverso da quello dello studente)</Label>

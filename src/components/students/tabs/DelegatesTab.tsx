@@ -17,7 +17,7 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
   
   const addDelegate = () => {
     if (delegates.length < 5) {
-      const newDelegates = [...delegates, { name: "", relationship: "", fiscalCode: "", phone: "" }];
+      const newDelegates = [...delegates, { name: "", relationship: "", fiscalCode: "", phone: "", documentNumber: "" }];
       setDelegates(newDelegates);
       if (onChange) {
         onChange(newDelegates);
@@ -83,6 +83,15 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
                     value={delegate.phone}
                     placeholder="Numero di telefono" 
                     onChange={(e) => updateDelegate(index, 'phone', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`delegate-document-${index}`}>Numero Documento</Label>
+                  <Input 
+                    id={`delegate-document-${index}`} 
+                    value={delegate.documentNumber}
+                    placeholder="Numero carta d'identità o altro documento" 
+                    onChange={(e) => updateDelegate(index, 'documentNumber', e.target.value)}
                   />
                 </div>
               </div>

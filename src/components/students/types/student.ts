@@ -4,6 +4,7 @@ export interface Delegate {
   relationship: string;
   fiscalCode: string;
   phone: string;
+  documentNumber: string; // Added document number field
 }
 
 export interface AcademicRecord {
@@ -11,6 +12,12 @@ export interface AcademicRecord {
   class: string;
   finalGrade: string;
   notes: string;
+}
+
+export interface PhysicalEducationExemption {
+  startDate: string;
+  endDate: string;
+  reason: string;
 }
 
 export interface Student {
@@ -39,6 +46,8 @@ export interface Student {
   fatherEmail: string;
   fatherPhone: string;
   fatherOccupation: string;
+  fatherEducation: string; // Added education field
+  fatherMaritalStatus: string; // Added marital status field
   
   motherFirstName: string;
   motherLastName: string;
@@ -46,15 +55,24 @@ export interface Student {
   motherEmail: string;
   motherPhone: string;
   motherOccupation: string;
+  motherEducation: string; // Added education field
+  motherMaritalStatus: string; // Added marital status field
   
   delegates: Delegate[];
   
   enrollmentDate: string;
   previousSchool: string;
   academicHistory: AcademicRecord[];
+  physicalEducationExemption: PhysicalEducationExemption | null; // Added PE exemption field
   
   specialNeeds: boolean;
   accommodations: string;
+  
+  // New fields
+  useSchoolBus: boolean;
+  independentExit: boolean;
+  localExitPermission: boolean;
+  privacyConsent: boolean;
   
   notes: string;
 }
@@ -85,6 +103,8 @@ export const mockStudentDetail: Student = {
   fatherEmail: "giuseppe.rossi@example.com",
   fatherPhone: "333-7654321",
   fatherOccupation: "Ingegnere",
+  fatherEducation: "Laurea in Ingegneria", // Added education field
+  fatherMaritalStatus: "Sposato", // Added marital status field
   
   motherFirstName: "Maria",
   motherLastName: "Bianchi",
@@ -92,10 +112,12 @@ export const mockStudentDetail: Student = {
   motherEmail: "maria.rossi@example.com",
   motherPhone: "333-9876543",
   motherOccupation: "Medico",
+  motherEducation: "Laurea in Medicina", // Added education field
+  motherMaritalStatus: "Sposata", // Added marital status field
   
   delegates: [
-    { name: "Anna Verdi", relationship: "Nonna", fiscalCode: "VRDNNA50C44F205X", phone: "333-1122334" },
-    { name: "Paolo Neri", relationship: "Zio", fiscalCode: "NREPLA65D23F205Y", phone: "333-5566778" }
+    { name: "Anna Verdi", relationship: "Nonna", fiscalCode: "VRDNNA50C44F205X", phone: "333-1122334", documentNumber: "AX12345" },
+    { name: "Paolo Neri", relationship: "Zio", fiscalCode: "NREPLA65D23F205Y", phone: "333-5566778", documentNumber: "CA67890" }
   ],
   
   enrollmentDate: "01/09/2022",
@@ -104,9 +126,16 @@ export const mockStudentDetail: Student = {
     { year: "2022-2023", class: "1A", finalGrade: "8/10", notes: "Ottimo rendimento in matematica" },
     { year: "2023-2024", class: "2A", finalGrade: "8.5/10", notes: "Miglioramento nelle lingue straniere" }
   ],
+  physicalEducationExemption: null,
   
   specialNeeds: false,
   accommodations: "",
+  
+  // New fields with default values
+  useSchoolBus: false,
+  independentExit: false,
+  localExitPermission: false,
+  privacyConsent: true,
   
   notes: "Partecipa attivamente alle attività extracurriculari. Rappresentante di classe per l'anno 2023-2024."
 };
