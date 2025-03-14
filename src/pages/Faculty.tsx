@@ -6,12 +6,14 @@ import FacultyList from "@/components/faculty/FacultyList";
 import FacultyDetail from "@/components/faculty/FacultyDetail";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ParameterConfig from "@/components/faculty/ParameterConfig";
 
 const Faculty: React.FC = () => {
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [isAddingTeacher, setIsAddingTeacher] = useState(false);
+  const [activeTab, setActiveTab] = useState("staff");
   const { toast } = useToast();
 
   const handleSelectTeacher = (id: string) => {
@@ -26,8 +28,8 @@ const Faculty: React.FC = () => {
 
   const handleSaveNewTeacher = () => {
     toast({
-      title: "Docente aggiunto",
-      description: "Il nuovo docente è stato aggiunto con successo.",
+      title: "Dipendente aggiunto",
+      description: "Il nuovo dipendente è stato aggiunto con successo.",
     });
     setIsAddingTeacher(false);
   };
@@ -35,6 +37,42 @@ const Faculty: React.FC = () => {
   const handleBackToList = () => {
     setSelectedTeacherId(null);
     setIsAddingTeacher(false);
+  };
+
+  // Display staff management or config based on active tab
+  const renderContent = () => {
+    if (activeTab === "parameters") {
+      return <ParameterConfig />;
+    }
+
+    // Staff management tab content
+    return (
+      <>
+        {!selectedTeacherId && !isAddingTeacher ? (
+          <div className="space-y-6">
+            <div className="flex justify-between">
+              <div>
+                {/* Filter options could go here */}
+              </div>
+              <Button onClick={handleAddTeacher}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Nuovo Dipendente
+              </Button>
+            </div>
+            <Card>
+              <FacultyList onSelectTeacher={handleSelectTeacher} />
+            </Card>
+          </div>
+        ) : (
+          <FacultyDetail 
+            teacherId={selectedTeacherId}
+            isNewTeacher={isAddingTeacher}
+            onSave={handleSaveNewTeacher}
+            onBack={handleBackToList}
+          />
+        )}
+      </>
+    );
   };
 
   return (
@@ -46,29 +84,19 @@ const Faculty: React.FC = () => {
         </p>
       </div>
 
-      {!selectedTeacherId && !isAddingTeacher ? (
-        <div className="space-y-6">
-          <div className="flex justify-between">
-            <div>
-              {/* Filter options could go here */}
-            </div>
-            <Button onClick={handleAddTeacher}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Nuovo Dipendente
-            </Button>
-          </div>
-          <Card>
-            <FacultyList onSelectTeacher={handleSelectTeacher} />
-          </Card>
-        </div>
-      ) : (
-        <FacultyDetail 
-          teacherId={selectedTeacherId}
-          isNewTeacher={isAddingTeacher}
-          onSave={handleSaveNewTeacher}
-          onBack={handleBackToList}
-        />
-      )}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="bg-background border">
+          <TabsTrigger value="staff">Personale</TabsTrigger>
+          <TabsTrigger value="parameters">
+            <Settings className="h-4 w-4 mr-2" />
+            Parametrizzazione
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value={activeTab} className="space-y-4">
+          {renderContent()}
+        </TabsContent>
+      </Tabs>
     </DashboardLayout>
   );
 };
