@@ -9,10 +9,11 @@ import { Student } from "../types/student";
 
 interface PersonalInfoTabProps {
   student: Student;
+  isEditMode?: boolean;
   onChange?: (field: string, value: any) => void;
 }
 
-const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) => {
+const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, isEditMode, onChange }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onChange) {
       onChange(e.target.id, e.target.value);
@@ -34,6 +35,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="firstName" 
                 value={student.firstName} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -42,6 +44,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="lastName" 
                 value={student.lastName} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -51,6 +54,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 type="date" 
                 value={student.dateOfBirth || ""} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -59,6 +63,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="placeOfBirth" 
                 value={student.placeOfBirth} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -67,6 +72,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="fiscalCode" 
                 value={student.fiscalCode} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -76,6 +82,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 type="email" 
                 value={student.email} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -84,6 +91,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="phone" 
                 value={student.phone} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -92,6 +100,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="address" 
                 value={student.address} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -100,6 +109,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="city" 
                 value={student.city} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
             <div className="space-y-2">
@@ -108,11 +118,12 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ student, onChange }) 
                 id="postalCode" 
                 value={student.postalCode} 
                 onChange={handleChange}
+                disabled={!isEditMode}
               />
             </div>
           </div>
 
-          {!onChange && (
+          {isEditMode && (
             <div className="flex justify-end mt-6">
               <Button>
                 <Save className="mr-2 h-4 w-4" />

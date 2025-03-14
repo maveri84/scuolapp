@@ -12,10 +12,11 @@ import AcademicHistory from "./academic/AcademicHistory";
 
 interface AcademicTabProps {
   student: Student;
+  isEditMode?: boolean;
   onChange?: (field: string, value: any) => void;
 }
 
-const AcademicTab: React.FC<AcademicTabProps> = ({ student, onChange }) => {
+const AcademicTab: React.FC<AcademicTabProps> = ({ student, isEditMode, onChange }) => {
   const [academicHistory, setAcademicHistory] = useState<AcademicRecord[]>(student.academicHistory || []);
   const [hasExemption, setHasExemption] = useState(!!student.physicalEducationExemption);
   const [exemption, setExemption] = useState<PhysicalEducationExemption>(
@@ -116,6 +117,7 @@ const AcademicTab: React.FC<AcademicTabProps> = ({ student, onChange }) => {
             attendsReligiousEducation={student.attendsReligiousEducation}
             onInputChange={handleChange}
             onSwitchChange={handleSwitchChange}
+            isDisabled={!isEditMode}
           />
 
           <PhysicalEducationExemptionSection
@@ -127,12 +129,14 @@ const AcademicTab: React.FC<AcademicTabProps> = ({ student, onChange }) => {
             onExemptionChange={handleExemptionChange}
             onStartDateChange={handleStartDateChange}
             onEndDateChange={handleEndDateChange}
+            isDisabled={!isEditMode}
           />
 
           <AcademicHistory
             academicHistory={academicHistory}
             onAddRecord={addAcademicRecord}
             onUpdateRecord={updateAcademicRecord}
+            isDisabled={!isEditMode}
           />
 
           <div className="space-y-2">
@@ -142,10 +146,11 @@ const AcademicTab: React.FC<AcademicTabProps> = ({ student, onChange }) => {
               className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               value={student.notes}
               onChange={handleChange}
+              disabled={!isEditMode}
             />
           </div>
 
-          {!onChange && (
+          {isEditMode && (
             <div className="flex justify-end mt-6">
               <Button>
                 <Save className="mr-2 h-4 w-4" />

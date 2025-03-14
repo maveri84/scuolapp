@@ -10,10 +10,11 @@ import MotherSection from "./parents/MotherSection";
 
 interface ParentsTabProps {
   student: Student;
+  isEditMode?: boolean;
   onChange?: (field: string, value: any) => void;
 }
 
-const ParentsTab: React.FC<ParentsTabProps> = ({ student, onChange }) => {
+const ParentsTab: React.FC<ParentsTabProps> = ({ student, isEditMode, onChange }) => {
   return (
     <Card>
       <CardHeader>
@@ -28,7 +29,7 @@ const ParentsTab: React.FC<ParentsTabProps> = ({ student, onChange }) => {
           
           <MotherSection student={student} onChange={onChange} />
 
-          {!onChange && (
+          {isEditMode && (
             <div className="flex justify-end mt-6">
               <Button>
                 <Save className="mr-2 h-4 w-4" />

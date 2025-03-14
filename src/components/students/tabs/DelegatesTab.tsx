@@ -9,10 +9,11 @@ import { Student, Delegate } from "../types/student";
 
 interface DelegatesTabProps {
   student: Student;
+  isEditMode?: boolean;
   onChange?: (delegates: Delegate[]) => void;
 }
 
-const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
+const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, isEditMode, onChange }) => {
   const [delegates, setDelegates] = useState(student.delegates);
   
   const addDelegate = () => {
@@ -56,6 +57,7 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
                     value={delegate.name}
                     placeholder="Nome completo del delegato" 
                     onChange={(e) => updateDelegate(index, 'name', e.target.value)}
+                    disabled={!isEditMode}
                   />
                 </div>
                 <div className="space-y-2">
@@ -65,6 +67,7 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
                     value={delegate.relationship}
                     placeholder="Es: Nonna, Zio, Babysitter" 
                     onChange={(e) => updateDelegate(index, 'relationship', e.target.value)}
+                    disabled={!isEditMode}
                   />
                 </div>
                 <div className="space-y-2">
@@ -74,6 +77,7 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
                     value={delegate.fiscalCode}
                     placeholder="Codice fiscale del delegato" 
                     onChange={(e) => updateDelegate(index, 'fiscalCode', e.target.value)}
+                    disabled={!isEditMode}
                   />
                 </div>
                 <div className="space-y-2">
@@ -83,6 +87,7 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
                     value={delegate.phone}
                     placeholder="Numero di telefono" 
                     onChange={(e) => updateDelegate(index, 'phone', e.target.value)}
+                    disabled={!isEditMode}
                   />
                 </div>
                 <div className="space-y-2">
@@ -92,20 +97,21 @@ const DelegatesTab: React.FC<DelegatesTabProps> = ({ student, onChange }) => {
                     value={delegate.documentNumber}
                     placeholder="Numero carta d'identità o altro documento" 
                     onChange={(e) => updateDelegate(index, 'documentNumber', e.target.value)}
+                    disabled={!isEditMode}
                   />
                 </div>
               </div>
             </div>
           ))}
 
-          {delegates.length < 5 && (
+          {isEditMode && delegates.length < 5 && (
             <Button variant="outline" type="button" onClick={addDelegate} className="w-full">
               <UserPlus className="mr-2 h-4 w-4" />
               Aggiungi Delegato
             </Button>
           )}
 
-          {!onChange && (
+          {isEditMode && (
             <div className="flex justify-end mt-6">
               <Button>
                 <Save className="mr-2 h-4 w-4" />

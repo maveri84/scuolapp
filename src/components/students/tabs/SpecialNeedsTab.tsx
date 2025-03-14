@@ -8,10 +8,11 @@ import DocumentationAndNotes from "./special-needs/DocumentationAndNotes";
 
 interface SpecialNeedsTabProps {
   student: Student;
+  isEditMode?: boolean;
   onChange?: (field: keyof Student, value: any) => void;
 }
 
-const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, onChange }) => {
+const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, isEditMode, onChange }) => {
   const [isH, setIsH] = useState(false);
   const [isDSA, setIsDSA] = useState(false);
   const [isBES, setIsBES] = useState(false);
@@ -90,6 +91,7 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, onChange }) 
         onHChange={handleHChange}
         onDSAChange={handleDSAChange}
         onBESChange={handleBESChange}
+        isDisabled={!isEditMode}
       />
       
       <StudentPermissions
@@ -99,6 +101,7 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, onChange }) 
         privacyConsent={privacyConsent}
         onToggleChange={updateToggle}
         onUploadClick={handleUpload}
+        isDisabled={!isEditMode}
       />
       
       {(isH || isDSA || isBES) && (
@@ -107,6 +110,8 @@ const SpecialNeedsTab: React.FC<SpecialNeedsTabProps> = ({ student, onChange }) 
           onNotesChange={handleNotesChange}
           onSave={handleSave}
           onUpload={handleUpload}
+          isDisabled={!isEditMode}
+          showSaveButton={isEditMode}
         />
       )}
     </div>
