@@ -3,6 +3,7 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, FileText, GraduationCap, Users } from "lucide-react";
+import CertificateManager from "@/components/administration/CertificateManager";
 
 const Administration: React.FC = () => {
   return (
@@ -70,7 +71,7 @@ const Administration: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      Rilascio di certificati e documenti ufficiali
+                      Rilascio di certificati e documenti ufficiali per gli studenti
                     </p>
                   </CardContent>
                 </Card>
@@ -131,11 +132,11 @@ const Administration: React.FC = () => {
                 </Card>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Fascicoli</CardTitle>
+                    <CardTitle className="text-base">Certificati</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      Accedi e gestisci i fascicoli del personale
+                      Rilascio di certificati e attestati per il personale
                     </p>
                   </CardContent>
                 </Card>
@@ -208,7 +209,7 @@ const Administration: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">Protocollo</CardTitle>
@@ -250,6 +251,18 @@ const Administration: React.FC = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Certificati</CardTitle>
+                  <CardDescription>
+                    Gestione e personalizzazione dei certificati ufficiali
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CertificateManager />
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
         </TabsContent>
