@@ -26,9 +26,10 @@ import FiscalCodeTab from "./tabs/FiscalCodeTab";
 
 interface StudentDetailProps {
   student: Student;
+  isEditMode?: boolean;
 }
 
-const StudentDetail: React.FC<StudentDetailProps> = ({ student }) => {
+const StudentDetail: React.FC<StudentDetailProps> = ({ student, isEditMode = false }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-6">
@@ -72,23 +73,23 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ student }) => {
         </TabsList>
 
         <TabsContent value="info" className="space-y-4">
-          <PersonalInfoTab student={student} />
+          <PersonalInfoTab student={student} isEditMode={isEditMode} />
         </TabsContent>
 
         <TabsContent value="parents" className="space-y-4">
-          <ParentsTab student={student} />
+          <ParentsTab student={student} isEditMode={isEditMode} />
         </TabsContent>
 
         <TabsContent value="delegates" className="space-y-4">
-          <DelegatesTab student={student} />
+          <DelegatesTab student={student} isEditMode={isEditMode} />
         </TabsContent>
 
         <TabsContent value="academic" className="space-y-4">
-          <AcademicTab student={student} />
+          <AcademicTab student={student} isEditMode={isEditMode} />
         </TabsContent>
 
         <TabsContent value="special" className="space-y-4">
-          <SpecialNeedsTab student={student} />
+          <SpecialNeedsTab student={student} isEditMode={isEditMode} />
         </TabsContent>
 
         <TabsContent value="communications" className="space-y-4">
@@ -111,14 +112,15 @@ export { StudentDetail };
 
 interface StudentDetailWrapperProps {
   studentId: string;
+  isEditMode?: boolean;
 }
 
-const StudentDetailWrapper: React.FC<StudentDetailWrapperProps> = ({ studentId }) => {
+const StudentDetailWrapper: React.FC<StudentDetailWrapperProps> = ({ studentId, isEditMode = false }) => {
   // In a real application, you would fetch the student data based on the studentId
   // For now, we're using the mock data
   const student = mockStudentDetail;
   
-  return <StudentDetail student={student} />;
+  return <StudentDetail student={student} isEditMode={isEditMode} />;
 };
 
 export default StudentDetailWrapper;
