@@ -158,14 +158,18 @@ const CalendarView: React.FC = () => {
     );
   };
 
-  // Custom day content to show event indicators
-  const renderDayContent = (day: Date) => {
-    const dayEvents = events.filter(event => isSameDay(event.start, day));
+  // Modified implementation of renderDayContent to use the available properties
+  const renderDayContent = (props: React.ComponentProps<typeof Calendar>['components']extends {
+    DayContent?: React.ComponentType<infer DayContentProps> | undefined
+  } ? DayContentProps : never) => {
+    // Get the date from the props (available via date property)
+    const date = props.date;
+    const dayEvents = events.filter(event => isSameDay(event.start, date));
     const hasEvents = dayEvents.length > 0;
     
     return (
       <div className="relative h-full w-full p-2">
-        <div>{day.getDate()}</div>
+        <div>{date.getDate()}</div>
         {hasEvents && (
           <div className="absolute bottom-1 left-0 right-0 flex justify-center">
             <div className="h-1 w-1 rounded-full bg-primary"></div>
