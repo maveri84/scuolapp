@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { PlusCircle, Edit, Trash2, CalendarRange } from "lucide-react";
-import { Teacher, TeachingService } from "../types/faculty";
+import { Teacher, TeachingService } from "../types";
 
 interface ServicesTabProps {
   teacher: Teacher;
@@ -53,20 +52,17 @@ const ServicesTab: React.FC<ServicesTabProps> = ({ teacher, onChange }) => {
       !currentService.endDate ||
       !currentService.schoolName
     ) {
-      // TODO: Show validation error
       return;
     }
 
     const newServices = [...teacher.teachingServices];
     
     if (isEditing) {
-      // Update existing service
       const index = newServices.findIndex(s => s.id === currentService.id);
       if (index !== -1) {
         newServices[index] = currentService as TeachingService;
       }
     } else {
-      // Add new service
       newServices.push(currentService as TeachingService);
     }
     

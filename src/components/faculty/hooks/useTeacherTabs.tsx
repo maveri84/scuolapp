@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   User,
@@ -20,6 +19,7 @@ import CommunicationsTab from "../tabs/CommunicationsTab";
 import PayrollTab from "../tabs/PayrollTab";
 import PermissionsTab from "../tabs/PermissionsTab";
 import { useTeacher } from "../context/TeacherContext";
+import { Teacher } from "../types";
 
 export interface TabDefinition {
   id: string;

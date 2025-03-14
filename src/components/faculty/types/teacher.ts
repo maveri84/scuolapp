@@ -1,5 +1,8 @@
 
 // Base teacher interface containing personal and employment information
+import { AcademicQualification, TrainingCourse } from './qualifications';
+import { TeachingService } from './teaching-service';
+
 export interface Teacher {
   id: string;
   firstName: string;
