@@ -29,8 +29,20 @@ const CERTIFICATE_TYPES = [
   { value: "nulla_osta", label: "Nulla Osta al Trasferimento" },
 ]
 
+// Define the certificate type
+interface Certificate {
+  id: string;
+  name: string;
+  type: string;
+  target: "studenti" | "docenti" | "entrambi";
+  description?: string;
+  content: string;
+  includeHeader?: boolean;
+  includeFooter?: boolean;
+}
+
 // Default templates for certificates (simplified versions)
-const DEFAULT_TEMPLATES = [
+const DEFAULT_TEMPLATES: Certificate[] = [
   {
     id: "iscrizione_scolastica",
     name: "Certificato di Iscrizione Scolastica",
@@ -182,10 +194,10 @@ type CertificateFormValues = z.infer<typeof certificateFormSchema>;
 
 const CertificateManager: React.FC = () => {
   const { toast } = useToast();
-  const [certificates, setCertificates] = useState(DEFAULT_TEMPLATES);
+  const [certificates, setCertificates] = useState<Certificate[]>(DEFAULT_TEMPLATES);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"studenti" | "docenti" | "tutti">("tutti");
-  const [editingCertificate, setEditingCertificate] = useState<any | null>(null);
+  const [editingCertificate, setEditingCertificate] = useState<Certificate | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Filter certificates based on search and active tab
@@ -229,7 +241,7 @@ const CertificateManager: React.FC = () => {
       });
     } else {
       // Add new certificate
-      const newCert = {
+      const newCert: Certificate = {
         id: `cert_${Date.now()}`,
         ...values
       };
@@ -245,7 +257,7 @@ const CertificateManager: React.FC = () => {
   };
 
   // Handle edit certificate
-  const handleEdit = (certificate: any) => {
+  const handleEdit = (certificate: Certificate) => {
     setEditingCertificate(certificate);
     form.reset({
       name: certificate.name,
@@ -284,7 +296,7 @@ const CertificateManager: React.FC = () => {
   };
 
   // Handle preview certificate
-  const handlePreview = (certificate: any) => {
+  const handlePreview = (certificate: Certificate) => {
     // In a real application, this would open a preview of the certificate
     toast({
       title: "Anteprima certificato",
@@ -293,7 +305,7 @@ const CertificateManager: React.FC = () => {
   };
 
   // Handle download certificate
-  const handleDownload = (certificate: any) => {
+  const handleDownload = (certificate: Certificate) => {
     // In a real application, this would download the certificate
     toast({
       title: "Download certificato",
@@ -434,7 +446,7 @@ const CertificateManager: React.FC = () => {
                           />
                         </FormControl>
                         <FormDescription>
-                          Usa i segnaposto come {{nome_studente}}, {{classe}}, {{data_corrente}} per i dati dinamici.
+                          Usa i segnaposto come &#123;&#123;nome_studente&#125;&#125;, &#123;&#123;classe&#125;&#125;, &#123;&#123;data_corrente&#125;&#125; per i dati dinamici.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
