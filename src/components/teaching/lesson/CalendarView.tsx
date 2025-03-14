@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, isSameDay } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { CalendarIcon, Video, Plus, Users, Clock, Info, Calendar as CalendarLucide } from 'lucide-react';
+import { CalendarIcon, Video, Plus, Users, Clock, Info, Calendar as CalendarLucide, School, X } from 'lucide-react';
 
 // Mock events data
 interface CalendarEvent {
@@ -20,7 +20,7 @@ interface CalendarEvent {
   title: string;
   start: Date;
   end: Date;
-  type: 'meeting' | 'conference' | 'parentMeeting' | 'videoCall';
+  type: 'meeting' | 'closure' | 'parentMeeting' | 'conference' | 'videoCall';
   description?: string;
   participants?: string[];
   location?: string;
@@ -56,15 +56,32 @@ const mockEvents: CalendarEvent[] = [
     type: 'conference',
     description: 'Conferenza sulle nuove tecnologie per la didattica',
     location: 'Aula Magna'
+  },
+  {
+    id: '4',
+    title: 'Chiusura per Festività',
+    start: new Date(2024, 3, 25, 0, 0),
+    end: new Date(2024, 3, 25, 23, 59),
+    type: 'closure',
+    description: 'Chiusura scuola per festa nazionale'
   }
 ];
 
 const CalendarView: React.FC = () => {
-  const [events] = useState<CalendarEvent[]>(mockEvents);
+  const [events, setEvents] = useState<CalendarEvent[]>(mockEvents);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [isViewingEventDetails, setIsViewingEventDetails] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [newEvent, setNewEvent] = useState<Partial<CalendarEvent>>({
+    title: '',
+    type: 'meeting',
+    start: new Date(),
+    end: new Date(),
+    description: '',
+    location: '',
+    isVideoCall: false
+  });
 
   // Handler for date selection
   const handleDateSelect = (date: Date | undefined) => {
@@ -79,6 +96,13 @@ const CalendarView: React.FC = () => {
 
   // Open event creation modal
   const handleCreateEvent = () => {
+    if (selectedDate) {
+      setNewEvent({
+        ...newEvent,
+        start: selectedDate,
+        end: selectedDate
+      });
+    }
     setIsCreatingEvent(true);
   };
 
@@ -86,6 +110,41 @@ const CalendarView: React.FC = () => {
   const handleViewEvent = (event: CalendarEvent) => {
     setSelectedEvent(event);
     setIsViewingEventDetails(true);
+  };
+
+  // Handle save event
+  const handleSaveEvent = () => {
+    if (!newEvent.title || !newEvent.type) return;
+    
+    const eventToSave: CalendarEvent = {
+      id: Math.random().toString(36).substring(2, 9),
+      title: newEvent.title || '',
+      type: newEvent.type as CalendarEvent['type'],
+      start: newEvent.start || new Date(),
+      end: newEvent.end || new Date(),
+      description: newEvent.description,
+      location: newEvent.location,
+      isVideoCall: newEvent.isVideoCall,
+      participants: newEvent.participants
+    };
+    
+    setEvents([...events, eventToSave]);
+    setIsCreatingEvent(false);
+    setNewEvent({
+      title: '',
+      type: 'meeting',
+      start: new Date(),
+      end: new Date(),
+      description: '',
+      location: '',
+      isVideoCall: false
+    });
+  };
+
+  // Handle delete event
+  const handleDeleteEvent = (id: string) => {
+    setEvents(events.filter(event => event.id !== id));
+    setIsViewingEventDetails(false);
   };
 
   // Render events for the selected date
@@ -158,30 +217,6 @@ const CalendarView: React.FC = () => {
     );
   };
 
-  // Modified implementation of renderDayContent to use the available properties
-  const renderDayContent = (props: React.ComponentProps<typeof Calendar>['components']extends {
-    DayContent?: React.ComponentType<infer DayContentProps> | undefined
-  } ? DayContentProps : never) => {
-    // Get the date from the props (available via date property)
-    const date = props.date;
-    const dayEvents = events.filter(event => isSameDay(event.start, date));
-    const hasEvents = dayEvents.length > 0;
-    
-    return (
-      <div className="relative h-full w-full p-2">
-        <div>{date.getDate()}</div>
-        {hasEvents && (
-          <div className="absolute bottom-1 left-0 right-0 flex justify-center">
-            <div className="h-1 w-1 rounded-full bg-primary"></div>
-            {dayEvents.length > 1 && (
-              <div className="h-1 w-1 rounded-full bg-primary ml-0.5"></div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   // Render badge for event type
   const EventTypeBadge = ({ type }: { type: CalendarEvent['type'] }) => {
     switch(type) {
@@ -193,6 +228,8 @@ const CalendarView: React.FC = () => {
         return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Colloquio</Badge>;
       case 'videoCall':
         return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Videochiamata</Badge>;
+      case 'closure':
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Chiusura</Badge>;
       default:
         return null;
     }
@@ -212,7 +249,12 @@ const CalendarView: React.FC = () => {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="title">Titolo</Label>
-            <Input id="title" placeholder="Titolo dell'evento" />
+            <Input 
+              id="title" 
+              placeholder="Titolo dell'evento" 
+              value={newEvent.title} 
+              onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+            />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -222,14 +264,14 @@ const CalendarView: React.FC = () => {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="justify-start text-left">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, 'd MMM yyyy', { locale: it }) : "Seleziona data"}
+                    {newEvent.start ? format(newEvent.start, 'd MMM yyyy', { locale: it }) : "Seleziona data"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateSelect}
+                    selected={newEvent.start}
+                    onSelect={(date) => setNewEvent({...newEvent, start: date, end: date})}
                     initialFocus
                   />
                 </PopoverContent>
@@ -238,7 +280,10 @@ const CalendarView: React.FC = () => {
             
             <div className="grid gap-2">
               <Label htmlFor="type">Tipo</Label>
-              <Select defaultValue="meeting">
+              <Select 
+                defaultValue={newEvent.type} 
+                onValueChange={(value) => setNewEvent({...newEvent, type: value as CalendarEvent['type']})}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleziona tipo" />
                 </SelectTrigger>
@@ -247,6 +292,7 @@ const CalendarView: React.FC = () => {
                   <SelectItem value="conference">Conferenza</SelectItem>
                   <SelectItem value="parentMeeting">Colloquio Genitori</SelectItem>
                   <SelectItem value="videoCall">Videochiamata</SelectItem>
+                  <SelectItem value="closure">Chiusura</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -255,34 +301,71 @@ const CalendarView: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="startTime">Ora inizio</Label>
-              <Input id="startTime" type="time" />
+              <Input 
+                id="startTime" 
+                type="time" 
+                onChange={(e) => {
+                  if (!newEvent.start) return;
+                  const [hours, minutes] = e.target.value.split(':').map(Number);
+                  const newDate = new Date(newEvent.start);
+                  newDate.setHours(hours);
+                  newDate.setMinutes(minutes);
+                  setNewEvent({...newEvent, start: newDate});
+                }}
+              />
             </div>
             
             <div className="grid gap-2">
               <Label htmlFor="endTime">Ora fine</Label>
-              <Input id="endTime" type="time" />
+              <Input 
+                id="endTime" 
+                type="time" 
+                onChange={(e) => {
+                  if (!newEvent.end) return;
+                  const [hours, minutes] = e.target.value.split(':').map(Number);
+                  const newDate = new Date(newEvent.end);
+                  newDate.setHours(hours);
+                  newDate.setMinutes(minutes);
+                  setNewEvent({...newEvent, end: newDate});
+                }}
+              />
             </div>
           </div>
           
           <div className="grid gap-2">
             <Label htmlFor="location">Luogo</Label>
-            <Input id="location" placeholder="Luogo dell'evento" />
+            <Input 
+              id="location" 
+              placeholder="Luogo dell'evento" 
+              value={newEvent.location || ''}
+              onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+            />
           </div>
           
           <div className="grid gap-2">
             <Label htmlFor="description">Descrizione</Label>
-            <Textarea id="description" placeholder="Descrizione dell'evento" rows={3} />
+            <Textarea 
+              id="description" 
+              placeholder="Descrizione dell'evento" 
+              rows={3} 
+              value={newEvent.description || ''}
+              onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+            />
           </div>
           
           <div className="flex items-center space-x-2">
-            <Checkbox id="isVideoCall" />
+            <Checkbox 
+              id="isVideoCall" 
+              checked={newEvent.isVideoCall || false}
+              onCheckedChange={(checked) => setNewEvent({...newEvent, isVideoCall: checked === true})}
+            />
             <Label htmlFor="isVideoCall">Abilita videochiamata</Label>
           </div>
         </div>
         
         <SheetFooter>
-          <Button onClick={() => setIsCreatingEvent(false)}>Annulla</Button>
-          <Button type="submit">Salva evento</Button>
+          <Button variant="outline" onClick={() => setIsCreatingEvent(false)}>Annulla</Button>
+          <Button type="submit" onClick={handleSaveEvent}>Salva evento</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>
@@ -349,24 +432,76 @@ const CalendarView: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {selectedEvent.type === 'closure' && (
+              <div className="flex items-start space-x-3">
+                <School className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium">Tipo di chiusura</p>
+                  <p className="text-sm text-muted-foreground">
+                    Istituzione scolastica chiusa per questa data
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
           
           <SheetFooter>
             <div className="flex w-full justify-between">
-              <Button variant="outline" onClick={() => setIsViewingEventDetails(false)}>
-                Chiudi
+              <Button variant="destructive" onClick={() => handleDeleteEvent(selectedEvent.id)}>
+                <X className="mr-2 h-4 w-4" />
+                Elimina
               </Button>
               
-              {selectedEvent.isVideoCall && (
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Video className="mr-2 h-4 w-4" />
-                  Avvia videochiamata
+              <div className="space-x-2">
+                <Button variant="outline" onClick={() => setIsViewingEventDetails(false)}>
+                  Chiudi
                 </Button>
-              )}
+                
+                {selectedEvent.isVideoCall && (
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Video className="mr-2 h-4 w-4" />
+                    Avvia videochiamata
+                  </Button>
+                )}
+              </div>
             </div>
           </SheetFooter>
         </SheetContent>
       </Sheet>
+    );
+  };
+
+  // Custom day renderer to show event indicators
+  const renderDayContent = (props: any) => {
+    // Get the date from the props
+    const date = props.date;
+    const dayEvents = events.filter(event => isSameDay(event.start, date));
+    const hasEvents = dayEvents.length > 0;
+    
+    // Check if there's a closure event
+    const hasClosure = dayEvents.some(event => event.type === 'closure');
+    
+    return (
+      <div className="relative h-full w-full p-2">
+        <div className={`${hasClosure ? 'text-red-500 font-semibold' : ''}`}>
+          {date.getDate()}
+        </div>
+        {hasEvents && (
+          <div className="absolute bottom-1 left-0 right-0 flex justify-center">
+            {hasClosure ? (
+              <div className="h-1 w-1 rounded-full bg-red-500"></div>
+            ) : (
+              <>
+                <div className="h-1 w-1 rounded-full bg-primary"></div>
+                {dayEvents.length > 1 && (
+                  <div className="h-1 w-1 rounded-full bg-primary ml-0.5"></div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -379,6 +514,9 @@ const CalendarView: React.FC = () => {
           onSelect={handleDateSelect}
           className="border rounded-md p-3"
           showOutsideDays
+          components={{
+            DayContent: renderDayContent
+          }}
         />
       </div>
       

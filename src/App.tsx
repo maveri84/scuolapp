@@ -13,7 +13,8 @@ import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Classes from "./pages/Classes"; 
-import Faculty from "./pages/Faculty"; // Import the Faculty page
+import Faculty from "./pages/Faculty";
+import Calendar from "./pages/Calendar"; // Import the Calendar page
 
 import "./App.css";
 
@@ -58,6 +59,14 @@ function App() {
           element={
             <DashboardLayout>
               <Assignments />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <DashboardLayout>
+              <Calendar />
             </DashboardLayout>
           }
         />
