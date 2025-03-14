@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import CertificateManager from "@/components/administration/CertificateManager";
+import CertificateManager from "@/components/administration/certificates/CertificateManager";
 
 const DocumentsTab: React.FC = () => {
   return (
