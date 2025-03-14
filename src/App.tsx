@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -15,7 +14,7 @@ import NotFound from "./pages/NotFound";
 import Classes from "./pages/Classes"; 
 import Faculty from "./pages/Faculty";
 import Calendar from "./pages/Calendar";
-import Customization from "./pages/Customization"; // Importiamo la nuova pagina
+import Customization from "./pages/Customization";
 
 import "./App.css";
 
@@ -88,7 +87,7 @@ function App() {
           }
         />
         <Route
-          path="/faculty"
+          path="/personnel"
           element={
             <DashboardLayout>
               <Faculty />

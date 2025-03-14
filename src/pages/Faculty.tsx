@@ -40,9 +40,9 @@ const Faculty: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Gestione Docenti</h1>
+        <h1 className="text-3xl font-bold">Gestione Personale</h1>
         <p className="text-muted-foreground">
-          Gestisci i dati, i servizi e la carriera del personale docente
+          Gestisci i dati, i servizi e la carriera del personale dell'istituto
         </p>
       </div>
 
@@ -54,7 +54,7 @@ const Faculty: React.FC = () => {
             </div>
             <Button onClick={handleAddTeacher}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Nuovo Docente
+              Nuovo Dipendente
             </Button>
           </div>
           <Card>

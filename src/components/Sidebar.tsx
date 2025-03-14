@@ -17,7 +17,8 @@ import {
   GraduationCap,
   School,
   FileText,
-  Palette
+  Palette,
+  Briefcase
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
@@ -117,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
                 <SidebarItem icon={<CalendarDays className="h-5 w-5" />} label="Calendario" to="/calendar" />
                 <SidebarItem icon={<Mail className="h-5 w-5" />} label="Comunicazioni" to="/messages" />
                 <SidebarItem icon={<Users className="h-5 w-5" />} label="Classi" to="/classes" />
-                <SidebarItem icon={<School className="h-5 w-5" />} label="Docenti" to="/faculty" />
+                <SidebarItem icon={<Briefcase className="h-5 w-5" />} label="Personale" to="/personnel" />
                 <SidebarItem 
                   icon={<Palette className="h-5 w-5" />} 
                   label="Personalizzazione" 
