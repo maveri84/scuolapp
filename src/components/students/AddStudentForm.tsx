@@ -50,6 +50,8 @@ const emptyStudent: Student = {
   fatherEmail: "",
   fatherPhone: "",
   fatherOccupation: "",
+  fatherEducation: "", // Added missing property
+  fatherMaritalStatus: "", // Added missing property
   
   motherFirstName: "",
   motherLastName: "",
@@ -57,15 +59,24 @@ const emptyStudent: Student = {
   motherEmail: "",
   motherPhone: "",
   motherOccupation: "",
+  motherEducation: "", // Added missing property
+  motherMaritalStatus: "", // Added missing property
   
   delegates: [],
   
   enrollmentDate: "",
   previousSchool: "",
   academicHistory: [],
+  physicalEducationExemption: null, // Added missing property
   
   specialNeeds: false,
   accommodations: "",
+  
+  // Added missing properties
+  useSchoolBus: false,
+  independentExit: false,
+  localExitPermission: false,
+  privacyConsent: false,
   
   notes: ""
 };
