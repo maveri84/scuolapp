@@ -1,460 +1,389 @@
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format, addHours } from "date-fns";
-import { toast } from "sonner";
-import { CalendarIcon, Plus, Video, Users, User, Clock, ExternalLink, MessageSquare } from "lucide-react";
+import React, { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { format, isSameDay } from 'date-fns';
+import { it } from 'date-fns/locale';
+import { CalendarIcon, Video, Plus, Users, Clock, Info, Calendar as CalendarLucide } from 'lucide-react';
 
-// Mock data for events
-type EventType = 'meeting' | 'appointment' | 'conference' | 'videocall';
-
-interface Event {
+// Mock events data
+interface CalendarEvent {
   id: string;
   title: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  description: string;
-  type: EventType;
+  start: Date;
+  end: Date;
+  type: 'meeting' | 'conference' | 'parentMeeting' | 'videoCall';
+  description?: string;
   participants?: string[];
   location?: string;
-  videoLink?: string;
+  isVideoCall?: boolean;
 }
 
-// Sample events
-const initialEvents: Event[] = [
+const mockEvents: CalendarEvent[] = [
   {
     id: '1',
-    title: 'Incontro Collegio Docenti',
-    date: new Date(2023, 9, 15),
-    startTime: '15:00',
-    endTime: '17:00',
-    description: 'Riunione mensile del collegio docenti',
+    title: 'Riunione Dipartimento',
+    start: new Date(2024, 3, 15, 14, 30),
+    end: new Date(2024, 3, 15, 16, 0),
     type: 'meeting',
-    participants: ['Tutti i docenti'],
-    location: 'Aula Magna'
+    description: 'Discussione programmazione didattica',
+    participants: ['Marco Rossi', 'Giulia Bianchi', 'Luca Verdi'],
+    location: 'Sala riunioni principale'
   },
   {
     id: '2',
-    title: 'Colloquio con i Genitori di Mario Rossi',
-    date: new Date(2023, 9, 16),
-    startTime: '14:30',
-    endTime: '15:00',
-    description: 'Discussione sul rendimento scolastico',
-    type: 'conference',
-    participants: ['Genitori di Mario Rossi']
+    title: 'Colloquio Genitori',
+    start: new Date(2024, 3, 16, 17, 0),
+    end: new Date(2024, 3, 16, 17, 30),
+    type: 'parentMeeting',
+    description: 'Colloquio con i genitori di Sofia Esposito',
+    participants: ['Mario Esposito', 'Laura Esposito'],
+    isVideoCall: true
   },
   {
     id: '3',
-    title: 'Videocall Formazione Digitale',
-    date: new Date(2023, 9, 17),
-    startTime: '16:00',
-    endTime: '17:30',
-    description: 'Corso di formazione sugli strumenti digitali',
-    type: 'videocall',
-    videoLink: 'https://meet.google.com/abc-defg-hij'
+    title: 'Conferenza Didattica Digitale',
+    start: new Date(2024, 3, 18, 9, 0),
+    end: new Date(2024, 3, 18, 13, 0),
+    type: 'conference',
+    description: 'Conferenza sulle nuove tecnologie per la didattica',
+    location: 'Aula Magna'
   }
 ];
 
 const CalendarView: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>(initialEvents);
+  const [events] = useState<CalendarEvent[]>(mockEvents);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [openNewEvent, setOpenNewEvent] = useState(false);
-  const [calendarView, setCalendarView] = useState<'month' | 'week' | 'day'>('month');
-  
-  // New event form state
-  const [newEvent, setNewEvent] = useState<Omit<Event, 'id'>>({
-    title: '',
-    date: new Date(),
-    startTime: '08:00',
-    endTime: '09:00',
-    description: '',
-    type: 'meeting'
-  });
-  
-  // Handle adding a new event
-  const handleAddEvent = () => {
-    const eventToAdd: Event = {
-      ...newEvent,
-      id: Date.now().toString(),
-      date: selectedDate || new Date()
-    };
-    
-    setEvents([...events, eventToAdd]);
-    setOpenNewEvent(false);
-    resetNewEventForm();
-    toast.success('Evento aggiunto con successo');
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const [isViewingEventDetails, setIsViewingEventDetails] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+
+  // Handler for date selection
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
   };
-  
-  // Reset form after adding event
-  const resetNewEventForm = () => {
-    setNewEvent({
-      title: '',
-      date: new Date(),
-      startTime: '08:00',
-      endTime: '09:00',
-      description: '',
-      type: 'meeting'
-    });
-  };
-  
-  // Handle form field changes
-  const handleNewEventChange = (field: keyof Omit<Event, 'id'>, value: any) => {
-    setNewEvent({
-      ...newEvent,
-      [field]: value
-    });
-  };
-  
-  // Filter events for the selected date
+
+  // Get events for selected date
   const getEventsForSelectedDate = () => {
     if (!selectedDate) return [];
+    return events.filter(event => isSameDay(event.start, selectedDate));
+  };
+
+  // Open event creation modal
+  const handleCreateEvent = () => {
+    setIsCreatingEvent(true);
+  };
+
+  // View event details
+  const handleViewEvent = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsViewingEventDetails(true);
+  };
+
+  // Render events for the selected date
+  const renderEvents = () => {
+    const dayEvents = getEventsForSelectedDate();
     
-    return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === selectedDate.getDate() &&
-             eventDate.getMonth() === selectedDate.getMonth() &&
-             eventDate.getFullYear() === selectedDate.getFullYear();
-    });
-  };
-  
-  // Get icon for event type
-  const getEventIcon = (type: EventType) => {
-    switch (type) {
-      case 'meeting':
-        return <Users className="h-4 w-4" />;
-      case 'appointment':
-        return <Clock className="h-4 w-4" />;
-      case 'conference':
-        return <User className="h-4 w-4" />;
-      case 'videocall':
-        return <Video className="h-4 w-4" />;
-      default:
-        return <CalendarIcon className="h-4 w-4" />;
-    }
-  };
-  
-  // Get color class for event type
-  const getEventColorClass = (type: EventType) => {
-    switch (type) {
-      case 'meeting':
-        return 'bg-blue-100 border-blue-300 text-blue-800';
-      case 'appointment':
-        return 'bg-purple-100 border-purple-300 text-purple-800';
-      case 'conference':
-        return 'bg-green-100 border-green-300 text-green-800';
-      case 'videocall':
-        return 'bg-red-100 border-red-300 text-red-800';
-      default:
-        return 'bg-gray-100 border-gray-300 text-gray-800';
-    }
-  };
-  
-  // Calculate the current date to highlight
-  const today = new Date();
-  
-  // Function to initiate a video call
-  const startVideoCall = (event: Event) => {
-    if (event.videoLink) {
-      window.open(event.videoLink, '_blank');
-    } else {
-      // For events without a link, we could generate one
-      const generatedLink = `https://meet.google.com/generated-${Math.random().toString(36).substring(2, 7)}`;
-      
-      // Update the event with the new link
-      const updatedEvents = events.map(e => 
-        e.id === event.id ? { ...e, videoLink: generatedLink } : e
-      );
-      
-      setEvents(updatedEvents);
-      window.open(generatedLink, '_blank');
-      toast.success('Link per la videochiamata generato e copiato');
-    }
-  };
-  
-  // Day cell renderer to show dots for events
-  const renderDayContents = (day: Date) => {
-    const dayEvents = events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === day.getDate() &&
-             eventDate.getMonth() === day.getMonth() &&
-             eventDate.getFullYear() === day.getFullYear();
-    });
-    
-    return dayEvents.length > 0 && (
-      <div className="absolute bottom-1 left-0 right-0 flex justify-center">
-        <div className={`h-1 w-1 rounded-full ${dayEvents.length > 0 ? 'bg-primary' : 'bg-transparent'}`}></div>
-      </div>
-    );
-  };
-  
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
-            <CardTitle>Calendario Scolastico</CardTitle>
-            <div className="flex space-x-2">
-              <Tabs value={calendarView} onValueChange={(value) => setCalendarView(value as any)}>
-                <TabsList>
-                  <TabsTrigger value="month">Mese</TabsTrigger>
-                  <TabsTrigger value="week">Settimana</TabsTrigger>
-                  <TabsTrigger value="day">Giorno</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              
-              <Dialog open={openNewEvent} onOpenChange={setOpenNewEvent}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nuovo Evento
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Crea Nuovo Evento</DialogTitle>
-                    <DialogDescription>
-                      Inserisci i dettagli per aggiungere un nuovo evento al calendario.
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="event-title">Titolo</Label>
-                      <Input 
-                        id="event-title" 
-                        value={newEvent.title} 
-                        onChange={(e) => handleNewEventChange('title', e.target.value)} 
-                        placeholder="Titolo dell'evento"
-                      />
-                    </div>
-                    
-                    <div className="grid gap-2">
-                      <Label htmlFor="event-type">Tipo di Evento</Label>
-                      <Select 
-                        value={newEvent.type} 
-                        onValueChange={(value) => handleNewEventChange('type', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona un tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="meeting">Riunione</SelectItem>
-                          <SelectItem value="appointment">Appuntamento</SelectItem>
-                          <SelectItem value="conference">Colloquio</SelectItem>
-                          <SelectItem value="videocall">Videochiamata</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="start-time">Ora Inizio</Label>
-                        <Input 
-                          id="start-time" 
-                          type="time" 
-                          value={newEvent.startTime} 
-                          onChange={(e) => handleNewEventChange('startTime', e.target.value)} 
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="end-time">Ora Fine</Label>
-                        <Input 
-                          id="end-time" 
-                          type="time" 
-                          value={newEvent.endTime} 
-                          onChange={(e) => handleNewEventChange('endTime', e.target.value)} 
-                        />
-                      </div>
-                    </div>
-                    
-                    {newEvent.type === 'videocall' && (
-                      <div className="grid gap-2">
-                        <Label htmlFor="video-link">Link Videochiamata (opzionale)</Label>
-                        <Input 
-                          id="video-link" 
-                          value={newEvent.videoLink || ''} 
-                          onChange={(e) => handleNewEventChange('videoLink', e.target.value)} 
-                          placeholder="https://meet.example.com/..."
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="grid gap-2">
-                      <Label htmlFor="event-desc">Descrizione</Label>
-                      <Textarea 
-                        id="event-desc" 
-                        value={newEvent.description} 
-                        onChange={(e) => handleNewEventChange('description', e.target.value)} 
-                        placeholder="Descrizione dell'evento..."
-                      />
-                    </div>
-                  </div>
-                  
-                  <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setOpenNewEvent(false)}>
-                      Annulla
-                    </Button>
-                    <Button type="button" onClick={handleAddEvent}>
-                      Salva Evento
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
+    if (dayEvents.length === 0) {
+      return (
+        <div className="text-center py-10">
+          <CalendarLucide className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="mt-2 text-lg font-medium text-gray-900">Nessun evento per questa data</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Inizia creando un nuovo evento per questa giornata.
+          </p>
+          <div className="mt-6">
+            <Button onClick={handleCreateEvent}>
+              <Plus className="mr-2 h-4 w-4" />
+              Crea nuovo evento
+            </Button>
           </div>
-        </CardHeader>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">
+            Eventi per {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: it }) : ''}
+          </h3>
+          <Button onClick={handleCreateEvent} size="sm">
+            <Plus className="mr-2 h-4 w-4" />
+            Nuovo
+          </Button>
+        </div>
         
-        <CardContent>
-          <div className="grid md:grid-cols-[300px,1fr] gap-6">
-            <div>
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded-md border"
-                components={{
-                  DayContent: (props) => (
-                    <div className="relative h-9 w-9 p-0 font-normal flex items-center justify-center">
-                      {props.day.getDate()}
-                      {renderDayContents(props.day)}
-                    </div>
-                  ),
-                }}
-              />
-              
-              <div className="mt-6">
-                <h3 className="font-medium mb-2">Legenda:</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                    <span className="text-sm">Riunioni</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
-                    <span className="text-sm">Appuntamenti</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                    <span className="text-sm">Colloqui</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                    <span className="text-sm">Videochiamate</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold">
-                  {selectedDate ? format(selectedDate, 'EEEE d MMMM yyyy') : 'Seleziona una data'}
-                </h2>
-              </div>
-              
-              {getEventsForSelectedDate().length > 0 ? (
-                <div className="space-y-4">
-                  {getEventsForSelectedDate().map((event) => (
-                    <div 
-                      key={event.id} 
-                      className={`p-4 border rounded-lg ${getEventColorClass(event.type)}`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="flex items-center">
-                            {getEventIcon(event.type)}
-                            <h3 className="text-lg font-medium ml-2">{event.title}</h3>
-                          </div>
-                          <div className="flex items-center text-sm mt-1">
-                            <Clock className="h-4 w-4 mr-1" />
-                            <span>{event.startTime} - {event.endTime}</span>
-                          </div>
-                        </div>
-                        
-                        {event.type === 'videocall' && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => startVideoCall(event)}
-                            className="flex items-center"
-                          >
-                            <Video className="h-4 w-4 mr-1" />
-                            {event.videoLink ? 'Partecipa' : 'Crea Link'}
-                          </Button>
-                        )}
-                      </div>
-                      
-                      {event.description && (
-                        <p className="mt-2 text-sm">{event.description}</p>
-                      )}
-                      
-                      {event.participants && event.participants.length > 0 && (
-                        <div className="mt-2 text-sm">
-                          <span className="font-medium">Partecipanti:</span> {event.participants.join(', ')}
-                        </div>
-                      )}
-                      
-                      {event.location && (
-                        <div className="mt-1 text-sm">
-                          <span className="font-medium">Luogo:</span> {event.location}
-                        </div>
-                      )}
-                      
-                      {event.videoLink && (
-                        <div className="mt-1 text-sm">
-                          <span className="font-medium">Link:</span>{' '}
-                          <a 
-                            href={event.videoLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline flex items-center inline-flex"
-                          >
-                            {event.videoLink.substring(0, 30)}...
-                            <ExternalLink className="h-3 w-3 ml-1" />
-                          </a>
-                        </div>
-                      )}
-                      
-                      <div className="mt-4 flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <MessageSquare className="h-4 w-4 mr-1" />
-                          Invia Promemoria
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-muted/20 rounded-lg border border-dashed">
-                  <CalendarIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <h3 className="mt-2 text-lg font-medium">Nessun evento per questa data</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Crea un nuovo evento cliccando sul pulsante "Nuovo Evento"
+        <div className="space-y-3">
+          {dayEvents.map(event => (
+            <div 
+              key={event.id} 
+              className="p-3 border rounded-md hover:bg-gray-50 cursor-pointer"
+              onClick={() => handleViewEvent(event)}
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="font-medium">{event.title}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                   </p>
-                  <Button 
-                    onClick={() => setOpenNewEvent(true)} 
-                    variant="outline" 
-                    className="mt-4"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Aggiungi Evento
-                  </Button>
+                </div>
+                <EventTypeBadge type={event.type} />
+              </div>
+              
+              {event.isVideoCall && (
+                <div className="mt-2 flex items-center text-sm text-blue-600">
+                  <Video className="h-3 w-3 mr-1" />
+                  Videochimata disponibile
+                </div>
+              )}
+              
+              {event.location && (
+                <div className="mt-1 text-sm text-muted-foreground">
+                  {event.location}
                 </div>
               )}
             </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Custom day content to show event indicators
+  const renderDayContent = (day: Date) => {
+    const dayEvents = events.filter(event => isSameDay(event.start, day));
+    const hasEvents = dayEvents.length > 0;
+    
+    return (
+      <div className="relative h-full w-full p-2">
+        <div>{day.getDate()}</div>
+        {hasEvents && (
+          <div className="absolute bottom-1 left-0 right-0 flex justify-center">
+            <div className="h-1 w-1 rounded-full bg-primary"></div>
+            {dayEvents.length > 1 && (
+              <div className="h-1 w-1 rounded-full bg-primary ml-0.5"></div>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
+    );
+  };
+
+  // Render badge for event type
+  const EventTypeBadge = ({ type }: { type: CalendarEvent['type'] }) => {
+    switch(type) {
+      case 'meeting':
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Riunione</Badge>;
+      case 'conference':
+        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">Conferenza</Badge>;
+      case 'parentMeeting':
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Colloquio</Badge>;
+      case 'videoCall':
+        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Videochiamata</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  // Event creation form
+  const EventCreationForm = () => (
+    <Sheet open={isCreatingEvent} onOpenChange={setIsCreatingEvent}>
+      <SheetContent className="sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>Crea nuovo evento</SheetTitle>
+          <SheetDescription>
+            Inserisci i dettagli per il tuo nuovo evento.
+          </SheetDescription>
+        </SheetHeader>
+        
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="title">Titolo</Label>
+            <Input id="title" placeholder="Titolo dell'evento" />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Data</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start text-left">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, 'd MMM yyyy', { locale: it }) : "Seleziona data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="type">Tipo</Label>
+              <Select defaultValue="meeting">
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="meeting">Riunione</SelectItem>
+                  <SelectItem value="conference">Conferenza</SelectItem>
+                  <SelectItem value="parentMeeting">Colloquio Genitori</SelectItem>
+                  <SelectItem value="videoCall">Videochiamata</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="startTime">Ora inizio</Label>
+              <Input id="startTime" type="time" />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="endTime">Ora fine</Label>
+              <Input id="endTime" type="time" />
+            </div>
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="location">Luogo</Label>
+            <Input id="location" placeholder="Luogo dell'evento" />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="description">Descrizione</Label>
+            <Textarea id="description" placeholder="Descrizione dell'evento" rows={3} />
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox id="isVideoCall" />
+            <Label htmlFor="isVideoCall">Abilita videochiamata</Label>
+          </div>
+        </div>
+        
+        <SheetFooter>
+          <Button onClick={() => setIsCreatingEvent(false)}>Annulla</Button>
+          <Button type="submit">Salva evento</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+
+  // Event details view
+  const EventDetails = () => {
+    if (!selectedEvent) return null;
+    
+    return (
+      <Sheet open={isViewingEventDetails} onOpenChange={setIsViewingEventDetails}>
+        <SheetContent className="sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>{selectedEvent.title}</SheetTitle>
+            <div className="flex items-center space-x-2 mt-1">
+              <EventTypeBadge type={selectedEvent.type} />
+              <p className="text-sm text-muted-foreground">
+                {format(selectedEvent.start, 'd MMMM yyyy', { locale: it })}
+              </p>
+            </div>
+          </SheetHeader>
+          
+          <div className="py-4 space-y-4">
+            <div className="flex items-start space-x-3">
+              <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium">Orario</p>
+                <p className="text-sm text-muted-foreground">
+                  {format(selectedEvent.start, 'HH:mm')} - {format(selectedEvent.end, 'HH:mm')}
+                </p>
+              </div>
+            </div>
+            
+            {selectedEvent.location && (
+              <div className="flex items-start space-x-3">
+                <CalendarLucide className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium">Luogo</p>
+                  <p className="text-sm text-muted-foreground">{selectedEvent.location}</p>
+                </div>
+              </div>
+            )}
+            
+            {selectedEvent.description && (
+              <div className="flex items-start space-x-3">
+                <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium">Descrizione</p>
+                  <p className="text-sm text-muted-foreground">{selectedEvent.description}</p>
+                </div>
+              </div>
+            )}
+            
+            {selectedEvent.participants && selectedEvent.participants.length > 0 && (
+              <div className="flex items-start space-x-3">
+                <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium">Partecipanti</p>
+                  <ul className="text-sm text-muted-foreground">
+                    {selectedEvent.participants.map((participant, i) => (
+                      <li key={i}>{participant}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <SheetFooter>
+            <div className="flex w-full justify-between">
+              <Button variant="outline" onClick={() => setIsViewingEventDetails(false)}>
+                Chiudi
+              </Button>
+              
+              {selectedEvent.isVideoCall && (
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Video className="mr-2 h-4 w-4" />
+                  Avvia videochiamata
+                </Button>
+              )}
+            </div>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    );
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row gap-4">
+      <div className="md:w-7/12">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={handleDateSelect}
+          className="border rounded-md p-3"
+          showOutsideDays
+        />
+      </div>
+      
+      <div className="md:w-5/12 border rounded-md p-4">
+        {renderEvents()}
+      </div>
+      
+      <EventCreationForm />
+      <EventDetails />
     </div>
   );
 };
