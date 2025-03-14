@@ -17,6 +17,7 @@ import Faculty from "./pages/Faculty";
 import Calendar from "./pages/Calendar";
 import Customization from "./pages/Customization";
 import Administration from "./pages/Administration";
+import Career from "./pages/Career";
 
 import "./App.css";
 
@@ -93,6 +94,14 @@ function App() {
           element={
             <DashboardLayout>
               <Faculty />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/career"
+          element={
+            <DashboardLayout>
+              <Career />
             </DashboardLayout>
           }
         />
