@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,8 @@ import PersonnelTab from "@/components/administration/PersonnelTab";
 import CalendarTab from "@/components/administration/CalendarTab";
 import DocumentsTab from "@/components/administration/DocumentsTab";
 import CertificateManager from "@/components/administration/CertificateManager";
+import DatabaseTab from "@/components/administration/DatabaseTab";
+import TeachingTab from "@/components/administration/TeachingTab";
 import { Badge } from "@/components/ui/badge";
 import {
   BookOpen,
@@ -142,46 +145,11 @@ const Administration: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="database" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurazione Database</CardTitle>
-              <CardDescription>Gestisci le connessioni ai database e sincronizza i dati</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="rounded-md border p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Database className="h-5 w-5 text-primary" />
-                      <div>
-                        <h3 className="text-base font-medium">Database Principale</h3>
-                        <p className="text-sm text-muted-foreground">MySQL 8.0</p>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="bg-green-50">Connesso</Badge>
-                  </div>
-                </div>
-
-                <div className="rounded-md border p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Database className="h-5 w-5 text-primary" />
-                      <div>
-                        <h3 className="text-base font-medium">Database di Backup</h3>
-                        <p className="text-sm text-muted-foreground">PostgreSQL 15</p>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="bg-green-50">Connesso</Badge>
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline">Configurazione Avanzata</Button>
-                  <Button>Sincronizza Dati</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DatabaseTab />
+        </TabsContent>
+        
+        <TabsContent value="teaching" className="space-y-4">
+          <TeachingTab />
         </TabsContent>
       </div>
     </DashboardLayout>
