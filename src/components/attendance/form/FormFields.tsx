@@ -77,7 +77,7 @@ const FormFields: React.FC<FormFieldsProps> = ({
           <Label htmlFor="type">Tipo di Registrazione</Label>
           <Select 
             value={selectedType} 
-            onValueChange={(value) => setSelectedType(value as AttendanceType)}
+            onValueChange={(value: string) => setSelectedType(value as AttendanceType)}
           >
             <SelectTrigger id="type" className="w-full">
               <SelectValue placeholder="Seleziona il tipo" />

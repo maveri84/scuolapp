@@ -31,9 +31,32 @@ import {
   FolderArchive,
   HardDrive
 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const Administration: React.FC = () => {
   const [activeTab, setActiveTab] = useState("students");
+  const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+
+  const handleApprove = (id: number) => {
+    console.log(`Request ${id} approved`);
+    // Here you would normally update the request status in your data
+  };
+
+  const handleReject = (id: number) => {
+    setSelectedRequestId(id);
+    setRejectionDialogOpen(true);
+  };
+
+  const confirmRejection = () => {
+    console.log(`Request ${selectedRequestId} rejected with reason: ${rejectionReason}`);
+    // Here you would normally update the request status in your data
+    setRejectionDialogOpen(false);
+    setRejectionReason("");
+    setSelectedRequestId(null);
+  };
 
   return (
     <DashboardLayout>
@@ -138,9 +161,67 @@ const Administration: React.FC = () => {
                 <CardDescription>Ultimi documenti protocollati</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-center py-8 text-muted-foreground">
-                  Qui apparirà l'elenco dei documenti protocollati
-                </p>
+                <div className="rounded-md border">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="p-2 text-left text-sm font-medium">ID</th>
+                        <th className="p-2 text-left text-sm font-medium">Oggetto</th>
+                        <th className="p-2 text-left text-sm font-medium">Data</th>
+                        <th className="p-2 text-left text-sm font-medium">Mittente</th>
+                        <th className="p-2 text-left text-sm font-medium">Tipo</th>
+                        <th className="p-2 text-left text-sm font-medium">Azioni</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        {
+                          id: "2024/0001",
+                          subject: "Convocazione collegio docenti",
+                          date: "15/05/2024",
+                          sender: "Dirigente Scolastico",
+                          type: "Uscita"
+                        },
+                        {
+                          id: "2024/0002",
+                          subject: "Richiesta materiale didattico",
+                          date: "14/05/2024",
+                          sender: "Prof. Bianchi",
+                          type: "Entrata"
+                        },
+                        {
+                          id: "2024/0003",
+                          subject: "Comunicazione USR",
+                          date: "12/05/2024",
+                          sender: "USR Lombardia",
+                          type: "Entrata"
+                        }
+                      ].map((doc) => (
+                        <tr key={doc.id} className="border-t">
+                          <td className="p-2 text-sm">{doc.id}</td>
+                          <td className="p-2 text-sm">{doc.subject}</td>
+                          <td className="p-2 text-sm">{doc.date}</td>
+                          <td className="p-2 text-sm">{doc.sender}</td>
+                          <td className="p-2 text-sm">
+                            <Badge variant={doc.type === "Entrata" ? "outline" : "secondary"}>
+                              {doc.type}
+                            </Badge>
+                          </td>
+                          <td className="p-2 text-sm">
+                            <div className="flex space-x-2">
+                              <Button variant="ghost" size="sm">
+                                <FileText className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Stamp className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -154,6 +235,31 @@ const Administration: React.FC = () => {
           </TabsContent>
         </div>
       </Tabs>
+
+      <Dialog open={rejectionDialogOpen} onOpenChange={setRejectionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Motivo del rifiuto</DialogTitle>
+            <DialogDescription>
+              Inserisci il motivo per cui stai rifiutando questa richiesta.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Inserisci il motivo del rifiuto..."
+            className="min-h-[100px]"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectionDialogOpen(false)}>
+              Annulla
+            </Button>
+            <Button onClick={confirmRejection}>
+              Conferma rifiuto
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
