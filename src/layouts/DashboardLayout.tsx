@@ -19,9 +19,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-      <div className={`transition-all duration-300 ${sidebarOpen && !isMobile ? 'ml-64' : 'ml-0'}`}>
+      <div className={`transition-all duration-300 ${!isMobile && sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         <Navbar onMenuClick={toggleSidebar} />
-        <main className="container mx-auto px-4 py-6 transition-all duration-300">
+        <main className="container mx-auto px-4 py-6">
           {children}
         </main>
       </div>

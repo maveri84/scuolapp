@@ -20,7 +20,12 @@ import {
   Palette,
   Briefcase,
   Building,
-  Award
+  Award,
+  BookText,
+  Database,
+  FileBox,
+  MessageSquare,
+  MessageCircle
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
@@ -35,13 +40,17 @@ interface SidebarItemProps {
   label: string;
   to: string;
   isAdmin?: boolean;
+  children?: React.ReactNode;
 }
 
 const userRoles = {
-  isAdmin: true
+  isAdmin: true,
+  isTeacher: true,
+  isStudent: false,
+  isSecretary: true
 };
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, isAdmin = false }) => {
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, isAdmin = false, children }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   
@@ -65,6 +74,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, isAdmin = fa
           <span>{label}</span>
         </Link>
       </Button>
+      {children}
     </li>
   );
 };
@@ -113,16 +123,36 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
             <nav>
               <ul className="space-y-1">
                 <SidebarItem icon={<HomeIcon className="h-5 w-5" />} label="Dashboard" to="/" />
+                
+                {userRoles.isTeacher && (
+                  <SidebarItem icon={<BookText className="h-5 w-5" />} label="Registro di Classe" to="/class-register" />
+                )}
+                
                 <SidebarItem icon={<UserCheck className="h-5 w-5" />} label="Presenze" to="/attendance" />
                 <SidebarItem icon={<ClipboardList className="h-5 w-5" />} label="Valutazioni" to="/grades" />
-                <SidebarItem icon={<GraduationCap className="h-5 w-5" />} label="Studenti" to="/students" />
                 <SidebarItem icon={<FilePlus className="h-5 w-5" />} label="Compiti" to="/assignments" />
                 <SidebarItem icon={<CalendarDays className="h-5 w-5" />} label="Calendario" to="/calendar" />
                 <SidebarItem icon={<Mail className="h-5 w-5" />} label="Comunicazioni" to="/messages" />
-                <SidebarItem icon={<Users className="h-5 w-5" />} label="Classi" to="/classes" />
-                <SidebarItem icon={<Briefcase className="h-5 w-5" />} label="Personale" to="/personnel" />
+                
+                {userRoles.isTeacher && (
+                  <SidebarItem icon={<MessageCircle className="h-5 w-5" />} label="Richieste Assenze" to="/leave-requests" />
+                )}
+
+                {(userRoles.isAdmin || userRoles.isSecretary) && (
+                  <SidebarItem icon={<Building className="h-5 w-5" />} label="Segreteria" to="/administration">
+                    <ul className="ml-6 mt-1 space-y-1">
+                      <SidebarItem icon={<GraduationCap className="h-5 w-5" />} label="Gestione Studenti" to="/administration?tab=students" />
+                      <SidebarItem icon={<Briefcase className="h-5 w-5" />} label="Gestione Personale" to="/administration?tab=personnel" />
+                      <SidebarItem icon={<FileText className="h-5 w-5" />} label="Certificati" to="/administration?tab=certificates" />
+                      <SidebarItem icon={<FileBox className="h-5 w-5" />} label="Protocollo" to="/administration?tab=protocol" />
+                    </ul>
+                  </SidebarItem>
+                )}
+                
+                <SidebarItem icon={<School className="h-5 w-5" />} label="Gestione Classi" to="/classes" />
+                
                 <SidebarItem icon={<Award className="h-5 w-5" />} label="Carriera" to="/career" />
-                <SidebarItem icon={<Building className="h-5 w-5" />} label="Segreteria" to="/administration" />
+
                 <SidebarItem 
                   icon={<Palette className="h-5 w-5" />} 
                   label="Personalizzazione" 
@@ -134,6 +164,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
           
           <div className="p-4">
             <ul className="space-y-1">
+              <SidebarItem 
+                icon={<Database className="h-5 w-5" />} 
+                label="Database" 
+                to="/database" 
+                isAdmin={true}
+              />
               <SidebarItem 
                 icon={<Shield className="h-5 w-5" />} 
                 label="Amministrazione" 

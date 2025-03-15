@@ -5,7 +5,9 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -15,9 +17,13 @@ import {
   FileCheck, 
   Pencil, 
   Search,
-  Calendar,
-  Filter
+  Calendar as CalendarIcon,
+  Filter,
+  Plus
 } from "lucide-react";
+import { format } from "date-fns";
+import { it } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for attendance register
 const mockAttendanceData = [
@@ -79,18 +85,27 @@ const mockAttendanceData = [
 ];
 
 const AttendanceRegister = () => {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClass, setSelectedClass] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedType, setSelectedType] = useState<string>("");
+  const [showNewForm, setShowNewForm] = useState(false);
   const itemsPerPage = 10;
 
-  // Filter attendance data based on search, class, and type
+  // Filter attendance data based on search, class, type, and date
   const filteredData = mockAttendanceData.filter(item => {
     const matchesSearch = item.studentName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesClass = selectedClass ? item.class === selectedClass : true;
     const matchesType = selectedType ? item.type === selectedType : true;
-    return matchesSearch && matchesClass && matchesType;
+    
+    // Filter by date if selected
+    const matchesDate = selectedDate 
+      ? item.date === format(selectedDate, 'yyyy-MM-dd')
+      : true;
+    
+    return matchesSearch && matchesClass && matchesType && matchesDate;
   });
 
   const pageCount = Math.ceil(filteredData.length / itemsPerPage);
@@ -137,6 +152,21 @@ const AttendanceRegister = () => {
     }
   };
 
+  const handleNewAttendance = () => {
+    toast({
+      title: "Nuova registrazione",
+      description: "Form di inserimento presenze/assenze aperto"
+    });
+    setShowNewForm(true);
+  };
+
+  const handleAction = (id: number) => {
+    toast({
+      title: "Modifica registrazione",
+      description: `Modifica della registrazione ${id} in corso...`
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -154,6 +184,24 @@ const AttendanceRegister = () => {
               className="pl-8"
             />
           </div>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : "Seleziona data"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          
           <Select value={selectedClass} onValueChange={setSelectedClass}>
             <SelectTrigger className="w-full sm:w-[150px]">
               <div className="flex items-center">
@@ -162,7 +210,7 @@ const AttendanceRegister = () => {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tutte le classi</SelectItem>
+              <SelectItem value="">Tutte le classi</SelectItem>
               <SelectItem value="1A">1A</SelectItem>
               <SelectItem value="1B">1B</SelectItem>
               <SelectItem value="2A">2A</SelectItem>
@@ -171,6 +219,7 @@ const AttendanceRegister = () => {
               <SelectItem value="3B">3B</SelectItem>
             </SelectContent>
           </Select>
+          
           <Select value={selectedType} onValueChange={setSelectedType}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <div className="flex items-center">
@@ -179,13 +228,18 @@ const AttendanceRegister = () => {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tutti i tipi</SelectItem>
+              <SelectItem value="">Tutti i tipi</SelectItem>
               <SelectItem value="absence">Assenze</SelectItem>
               <SelectItem value="late">Ritardi</SelectItem>
               <SelectItem value="early-exit">Uscite anticipate</SelectItem>
               <SelectItem value="justification">Giustificazioni</SelectItem>
             </SelectContent>
           </Select>
+          
+          <Button className="w-full sm:w-auto" onClick={handleNewAttendance}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuova Registrazione
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -197,7 +251,7 @@ const AttendanceRegister = () => {
                 <TableHead className="w-[100px]">Classe</TableHead>
                 <TableHead className="w-[120px]">
                   <div className="flex items-center">
-                    <Calendar className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="mr-2 h-4 w-4" />
                     Data
                   </div>
                 </TableHead>
@@ -205,7 +259,7 @@ const AttendanceRegister = () => {
                 <TableHead className="w-[100px]">Orario</TableHead>
                 <TableHead>Note</TableHead>
                 <TableHead className="w-[100px]">Stato</TableHead>
-                <TableHead className="w-[80px]">Azioni</TableHead>
+                <TableHead className="w-[80px] text-center">Azioni</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -214,7 +268,7 @@ const AttendanceRegister = () => {
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.studentName}</TableCell>
                     <TableCell>{item.class}</TableCell>
-                    <TableCell>{new Date(item.date).toLocaleDateString('it-IT')}</TableCell>
+                    <TableCell>{format(new Date(item.date), 'dd/MM/yyyy')}</TableCell>
                     <TableCell>{getTypeBadge(item.type)}</TableCell>
                     <TableCell>{item.time || "-"}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{item.notes || "-"}</TableCell>
@@ -230,7 +284,12 @@ const AttendanceRegister = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" title="Modifica">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        title="Modifica"
+                        onClick={() => handleAction(item.id)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </TableCell>
