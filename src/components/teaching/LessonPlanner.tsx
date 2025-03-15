@@ -2,9 +2,9 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { useLessonPlans } from "./hooks/useLessonPlans";
-import LessonPlannerHeader from "./lesson/LessonPlannerHeader";
-import LessonPlannerContent from "./lesson/LessonPlannerContent";
-import LessonPlannerFooter from "./lesson/LessonPlannerFooter";
+import LessonPlannerHeader from "./lesson-planner/LessonPlannerHeader";
+import LessonPlannerContent from "./lesson-planner/LessonPlannerContent";
+import LessonPlannerFooter from "./lesson-planner/LessonPlannerFooter";
 
 const LessonPlanner = () => {
   const [isCreating, setIsCreating] = useState(false);
