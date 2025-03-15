@@ -6,24 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Search } from "lucide-react";
 import { subjects, classes } from "../types/materials";
+import { useMaterialsContext } from "./MaterialsContext";
 
-interface MaterialsFilterProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedSubject: string;
-  setSelectedSubject: (subject: string) => void;
-  selectedClass: string;
-  setSelectedClass: (classId: string) => void;
-}
+const MaterialsFilter: React.FC = () => {
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedSubject,
+    setSelectedSubject,
+    selectedClass,
+    setSelectedClass,
+  } = useMaterialsContext();
 
-const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
-  searchQuery,
-  setSearchQuery,
-  selectedSubject,
-  setSelectedSubject,
-  selectedClass,
-  setSelectedClass,
-}) => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
