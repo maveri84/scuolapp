@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import DashboardLayout from "@/layouts/DashboardLayout";
@@ -39,150 +38,152 @@ const Administration: React.FC = () => {
 
       <AdministrationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <TabsContent value="students" className="space-y-4">
-        <StudentsTab />
-      </TabsContent>
+      <div className="mt-4">
+        <TabsContent value="students" className="space-y-4">
+          <StudentsTab />
+        </TabsContent>
 
-      <TabsContent value="personnel" className="space-y-4">
-        <PersonnelTab />
-      </TabsContent>
+        <TabsContent value="personnel" className="space-y-4">
+          <PersonnelTab />
+        </TabsContent>
 
-      <TabsContent value="calendar" className="space-y-4">
-        <CalendarTab />
-      </TabsContent>
+        <TabsContent value="calendar" className="space-y-4">
+          <CalendarTab />
+        </TabsContent>
 
-      <TabsContent value="documents" className="space-y-4">
-        <DocumentsTab />
-      </TabsContent>
+        <TabsContent value="documents" className="space-y-4">
+          <DocumentsTab />
+        </TabsContent>
 
-      <TabsContent value="certificates" className="space-y-4">
-        <CertificateManager />
-      </TabsContent>
+        <TabsContent value="certificates" className="space-y-4">
+          <CertificateManager />
+        </TabsContent>
 
-      <TabsContent value="protocol" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <TabsContent value="protocol" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Mail className="mr-2 h-5 w-5" /> Importazione Email
+                  </span>
+                  <Badge variant="outline">24 nuove</Badge>
+                </CardTitle>
+                <CardDescription>Importa e protocolla email da PEO e PEC</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Button className="w-full justify-start" variant="outline">
+                    <MailOpen className="mr-2 h-4 w-4" /> PEO Istituzionale
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Send className="mr-2 h-4 w-4" /> PEC Istituzionale
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <FileBox className="mr-2 h-5 w-5" /> Protocollo
+                  </span>
+                  <Badge variant="outline">103 documenti</Badge>
+                </CardTitle>
+                <CardDescription>Gestione del protocollo in entrata e uscita</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Button className="w-full justify-start" variant="outline">
+                    <CheckSquare className="mr-2 h-4 w-4" /> Protocolla Documento
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Stamp className="mr-2 h-4 w-4" /> Applica Timbro
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <FolderArchive className="mr-2 h-5 w-5" /> Fascicolazione
+                  </span>
+                  <Badge variant="outline">18 fascicoli</Badge>
+                </CardTitle>
+                <CardDescription>Organizza i documenti in fascicoli</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Button className="w-full justify-start" variant="outline">
+                    <FileText className="mr-2 h-4 w-4" /> Crea Fascicolo
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <HardDrive className="mr-2 h-4 w-4" /> Archivio Fascicoli
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center">
-                  <Mail className="mr-2 h-5 w-5" /> Importazione Email
-                </span>
-                <Badge variant="outline">24 nuove</Badge>
-              </CardTitle>
-              <CardDescription>Importa e protocolla email da PEO e PEC</CardDescription>
+              <CardTitle>Registro di Protocollo</CardTitle>
+              <CardDescription>Ultimi documenti protocollati</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <Button className="w-full justify-start" variant="outline">
-                  <MailOpen className="mr-2 h-4 w-4" /> PEO Istituzionale
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Send className="mr-2 h-4 w-4" /> PEC Istituzionale
-                </Button>
-              </div>
+              <p className="text-center py-8 text-muted-foreground">
+                Qui apparirà l'elenco dei documenti protocollati
+              </p>
             </CardContent>
           </Card>
+        </TabsContent>
 
+        <TabsContent value="database" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center">
-                  <FileBox className="mr-2 h-5 w-5" /> Protocollo
-                </span>
-                <Badge variant="outline">103 documenti</Badge>
-              </CardTitle>
-              <CardDescription>Gestione del protocollo in entrata e uscita</CardDescription>
+              <CardTitle>Configurazione Database</CardTitle>
+              <CardDescription>Gestisci le connessioni ai database e sincronizza i dati</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <Button className="w-full justify-start" variant="outline">
-                  <CheckSquare className="mr-2 h-4 w-4" /> Protocolla Documento
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Stamp className="mr-2 h-4 w-4" /> Applica Timbro
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center">
-                  <FolderArchive className="mr-2 h-5 w-5" /> Fascicolazione
-                </span>
-                <Badge variant="outline">18 fascicoli</Badge>
-              </CardTitle>
-              <CardDescription>Organizza i documenti in fascicoli</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Button className="w-full justify-start" variant="outline">
-                  <FileText className="mr-2 h-4 w-4" /> Crea Fascicolo
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <HardDrive className="mr-2 h-4 w-4" /> Archivio Fascicoli
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Registro di Protocollo</CardTitle>
-            <CardDescription>Ultimi documenti protocollati</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center py-8 text-muted-foreground">
-              Qui apparirà l'elenco dei documenti protocollati
-            </p>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="database" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Configurazione Database</CardTitle>
-            <CardDescription>Gestisci le connessioni ai database e sincronizza i dati</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="rounded-md border p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Database className="h-5 w-5 text-primary" />
-                    <div>
-                      <h3 className="text-base font-medium">Database Principale</h3>
-                      <p className="text-sm text-muted-foreground">MySQL 8.0</p>
+              <div className="space-y-4">
+                <div className="rounded-md border p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Database className="h-5 w-5 text-primary" />
+                      <div>
+                        <h3 className="text-base font-medium">Database Principale</h3>
+                        <p className="text-sm text-muted-foreground">MySQL 8.0</p>
+                      </div>
                     </div>
+                    <Badge variant="outline" className="bg-green-50">Connesso</Badge>
                   </div>
-                  <Badge variant="outline" className="bg-green-50">Connesso</Badge>
+                </div>
+
+                <div className="rounded-md border p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Database className="h-5 w-5 text-primary" />
+                      <div>
+                        <h3 className="text-base font-medium">Database di Backup</h3>
+                        <p className="text-sm text-muted-foreground">PostgreSQL 15</p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="bg-green-50">Connesso</Badge>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline">Configurazione Avanzata</Button>
+                  <Button>Sincronizza Dati</Button>
                 </div>
               </div>
-
-              <div className="rounded-md border p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Database className="h-5 w-5 text-primary" />
-                    <div>
-                      <h3 className="text-base font-medium">Database di Backup</h3>
-                      <p className="text-sm text-muted-foreground">PostgreSQL 15</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="bg-green-50">Connesso</Badge>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline">Configurazione Avanzata</Button>
-                <Button>Sincronizza Dati</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </div>
     </DashboardLayout>
   );
 };

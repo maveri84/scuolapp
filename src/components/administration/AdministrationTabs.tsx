@@ -1,49 +1,59 @@
 
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, FileText, GraduationCap, Users } from "lucide-react";
-import StudentsTab from "./StudentsTab";
-import PersonnelTab from "./PersonnelTab";
-import CalendarTab from "./CalendarTab";
-import DocumentsTab from "./DocumentsTab";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  BookOpen, 
+  Calendar, 
+  Database, 
+  FileBox, 
+  FileText, 
+  GraduationCap, 
+  Shield,
+  Users 
+} from "lucide-react";
 
-const AdministrationTabs: React.FC = () => {
+interface AdministrationTabsProps {
+  activeTab: string;
+  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const AdministrationTabs: React.FC<AdministrationTabsProps> = ({ activeTab, setActiveTab }) => {
   return (
-    <Tabs defaultValue="students" className="space-y-4">
-      <TabsList>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <TabsList className="grid grid-cols-4 md:grid-cols-8 gap-2">
         <TabsTrigger value="students" className="flex items-center">
           <GraduationCap className="mr-2 h-4 w-4" />
-          Studenti
+          <span className="hidden md:inline">Studenti</span>
         </TabsTrigger>
         <TabsTrigger value="personnel" className="flex items-center">
           <Users className="mr-2 h-4 w-4" />
-          Personale
+          <span className="hidden md:inline">Personale</span>
         </TabsTrigger>
         <TabsTrigger value="calendar" className="flex items-center">
-          <CalendarDays className="mr-2 h-4 w-4" />
-          Calendario Scolastico
+          <Calendar className="mr-2 h-4 w-4" />
+          <span className="hidden md:inline">Calendario</span>
         </TabsTrigger>
         <TabsTrigger value="documents" className="flex items-center">
           <FileText className="mr-2 h-4 w-4" />
-          Documenti
+          <span className="hidden md:inline">Documenti</span>
+        </TabsTrigger>
+        <TabsTrigger value="certificates" className="flex items-center">
+          <Shield className="mr-2 h-4 w-4" />
+          <span className="hidden md:inline">Certificati</span>
+        </TabsTrigger>
+        <TabsTrigger value="protocol" className="flex items-center">
+          <FileBox className="mr-2 h-4 w-4" />
+          <span className="hidden md:inline">Protocollo</span>
+        </TabsTrigger>
+        <TabsTrigger value="database" className="flex items-center">
+          <Database className="mr-2 h-4 w-4" />
+          <span className="hidden md:inline">Database</span>
+        </TabsTrigger>
+        <TabsTrigger value="teaching" className="flex items-center">
+          <BookOpen className="mr-2 h-4 w-4" />
+          <span className="hidden md:inline">Didattica</span>
         </TabsTrigger>
       </TabsList>
-      
-      <TabsContent value="students" className="space-y-4">
-        <StudentsTab />
-      </TabsContent>
-      
-      <TabsContent value="personnel" className="space-y-4">
-        <PersonnelTab />
-      </TabsContent>
-      
-      <TabsContent value="calendar" className="space-y-4">
-        <CalendarTab />
-      </TabsContent>
-      
-      <TabsContent value="documents" className="space-y-4">
-        <DocumentsTab />
-      </TabsContent>
     </Tabs>
   );
 };
