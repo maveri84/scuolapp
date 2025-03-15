@@ -37,7 +37,7 @@ const MaterialsFilter: React.FC = () => {
               <SelectValue placeholder="Materia" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tutte le materie</SelectItem>
+              <SelectItem value="all">Tutte le materie</SelectItem>
               {subjects.map(subject => (
                 <SelectItem key={subject.id} value={subject.name}>
                   {subject.name}
@@ -51,7 +51,7 @@ const MaterialsFilter: React.FC = () => {
               <SelectValue placeholder="Classe" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tutte le classi</SelectItem>
+              <SelectItem value="all">Tutte le classi</SelectItem>
               {classes.map(classItem => (
                 <SelectItem key={classItem.id} value={classItem.name}>
                   {classItem.name}

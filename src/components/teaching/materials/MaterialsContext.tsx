@@ -33,7 +33,7 @@ export const MaterialsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [googleDriveConnected, setGoogleDriveConnected] = useState(false);
 
   const filterFiles = () => {
-    let filteredFiles = mockFiles;
+    let filteredFiles = files;
     
     if (searchQuery) {
       filteredFiles = filteredFiles.filter(file => 
@@ -41,13 +41,13 @@ export const MaterialsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
     }
     
-    if (selectedSubject) {
+    if (selectedSubject && selectedSubject !== "all") {
       filteredFiles = filteredFiles.filter(file => 
         file.subject === selectedSubject
       );
     }
     
-    if (selectedClass) {
+    if (selectedClass && selectedClass !== "all") {
       filteredFiles = filteredFiles.filter(file => 
         file.class === selectedClass
       );

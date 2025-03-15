@@ -57,7 +57,7 @@ const TeachingMaterialsContent = () => {
       </CardContent>
       <CardFooter className="flex justify-between border-t pt-6">
         <div className="text-sm text-muted-foreground">
-          {filteredFiles.length} file{filteredFiles.length !== 1 ? "" : ""}
+          {filteredFiles.length} file{filteredFiles.length !== 1 ? "s" : ""}
         </div>
         
         {uploadingFile && (

@@ -51,7 +51,7 @@ export const useMaterialsActions = () => {
     if (!selectedFiles.length) return;
     
     // In a real application, you'd make an API call to delete the files
-    setFiles(files.filter(file => !selectedFiles.includes(file.id)));
+    setFiles(prevFiles => prevFiles.filter(file => !selectedFiles.includes(file.id)));
     setSelectedFiles([]);
     toast.success(`${selectedFiles.length} file eliminati`);
   };
