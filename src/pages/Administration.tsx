@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +11,7 @@ import CalendarTab from "@/components/administration/CalendarTab";
 import DocumentsTab from "@/components/administration/DocumentsTab";
 import CertificateManager from "@/components/administration/CertificateManager";
 import DatabaseTab from "@/components/administration/DatabaseTab";
-import TeachingTab from "@/components/administration/TeachingTab";
+import { TeachingTab } from "@/components/administration/teaching";
 import { Badge } from "@/components/ui/badge";
 import {
   BookOpen,
