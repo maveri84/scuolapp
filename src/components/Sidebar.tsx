@@ -141,10 +141,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
                 {(userRoles.isAdmin || userRoles.isSecretary) && (
                   <SidebarItem icon={<Building className="h-5 w-5" />} label="Segreteria" to="/administration">
                     <ul className="ml-6 mt-1 space-y-1">
-                      <SidebarItem icon={<GraduationCap className="h-5 w-5" />} label="Gestione Studenti" to="/administration?tab=students" />
-                      <SidebarItem icon={<Briefcase className="h-5 w-5" />} label="Gestione Personale" to="/administration?tab=personnel" />
-                      <SidebarItem icon={<FileText className="h-5 w-5" />} label="Certificati" to="/administration?tab=certificates" />
-                      <SidebarItem icon={<FileBox className="h-5 w-5" />} label="Protocollo" to="/administration?tab=protocol" />
+                      <SidebarItem icon={<GraduationCap className="h-5 w-5" />} label="Gestione Studenti" to="/administration" />
+                      <SidebarItem icon={<Briefcase className="h-5 w-5" />} label="Gestione Personale" to="/administration" />
+                      <SidebarItem icon={<FileText className="h-5 w-5" />} label="Certificati" to="/administration" />
+                      <SidebarItem icon={<FileBox className="h-5 w-5" />} label="Protocollo" to="/administration" />
                     </ul>
                   </SidebarItem>
                 )}
@@ -173,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
               <SidebarItem 
                 icon={<Shield className="h-5 w-5" />} 
                 label="Amministrazione" 
-                to="/settings" 
+                to="/administration" 
                 isAdmin={true}
               />
               <SidebarItem 
