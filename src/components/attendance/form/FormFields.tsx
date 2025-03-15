@@ -5,15 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { UserX, AlarmClock, ArrowRightFromLine, FileCheck } from "lucide-react";
-import { studentClasses, mockStudents } from "./constants";
+import { studentClasses, mockStudents, AttendanceType } from "./constants";
 
 interface FormFieldsProps {
   selectedClass: string;
   setSelectedClass: (value: string) => void;
   selectedStudent: string;
   setSelectedStudent: (value: string) => void;
-  selectedType: string;
-  setSelectedType: (value: string) => void;
+  selectedType: AttendanceType;
+  setSelectedType: (value: AttendanceType) => void;
   date: string;
   setDate: (value: string) => void;
   time: string;
@@ -75,7 +75,10 @@ const FormFields: React.FC<FormFieldsProps> = ({
         
         <div className="space-y-2">
           <Label htmlFor="type">Tipo di Registrazione</Label>
-          <Select value={selectedType} onValueChange={setSelectedType}>
+          <Select 
+            value={selectedType} 
+            onValueChange={(value) => setSelectedType(value as AttendanceType)}
+          >
             <SelectTrigger id="type" className="w-full">
               <SelectValue placeholder="Seleziona il tipo" />
             </SelectTrigger>
