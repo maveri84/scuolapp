@@ -18,6 +18,9 @@ import Calendar from "./pages/Calendar";
 import Customization from "./pages/Customization";
 import Administration from "./pages/Administration";
 import Career from "./pages/Career";
+import ClassRegister from "./pages/ClassRegister";
+import LeaveRequests from "./pages/LeaveRequests";
+import Database from "./pages/Database";
 
 import "./App.css";
 
@@ -118,6 +121,30 @@ function App() {
           element={
             <DashboardLayout>
               <Administration />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/class-register"
+          element={
+            <DashboardLayout>
+              <ClassRegister />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/leave-requests"
+          element={
+            <DashboardLayout>
+              <LeaveRequests />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/database"
+          element={
+            <DashboardLayout>
+              <Database />
             </DashboardLayout>
           }
         />
