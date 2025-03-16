@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import FormFields from "./form/FormFields";
 import FormActions from "./form/FormActions";
 import { useAttendanceForm } from "./form/useAttendanceForm";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 const AttendanceForm = () => {
   const {
@@ -19,6 +20,8 @@ const AttendanceForm = () => {
     setTime,
     notes,
     setNotes,
+    apiError,
+    isSubmitting,
     handleSubmit,
   } = useAttendanceForm();
 
@@ -32,6 +35,20 @@ const AttendanceForm = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {apiError && (
+            <div className="bg-destructive/15 p-3 rounded-md mb-4 flex items-start">
+              <AlertCircle className="h-5 w-5 text-destructive mr-2 mt-0.5" />
+              <span className="text-destructive text-sm">{apiError}</span>
+            </div>
+          )}
+          
+          {isSubmitting && (
+            <div className="bg-secondary p-3 rounded-md mb-4 flex items-center justify-center">
+              <Loader2 className="h-5 w-5 text-primary mr-2 animate-spin" />
+              <span className="text-primary text-sm">Salvataggio in corso...</span>
+            </div>
+          )}
+          
           <FormFields
             selectedClass={selectedClass}
             setSelectedClass={setSelectedClass}
@@ -49,7 +66,7 @@ const AttendanceForm = () => {
         </form>
       </CardContent>
       <CardFooter>
-        <FormActions onSubmit={handleSubmit} />
+        <FormActions onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       </CardFooter>
     </Card>
   );

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Bell, Send, AlertCircle } from "lucide-react";
+import { Bell, Send, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface PushNotificationDialogProps {
@@ -37,16 +37,31 @@ const PushNotificationDialog: React.FC<PushNotificationDialogProps> = ({ isOpen,
   const [priority, setPriority] = useState("normal");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
+    const errors: Record<string, string> = {};
+    
     if (!title.trim()) {
-      setError("Il titolo è obbligatorio");
-      return false;
+      errors.title = "Il titolo è obbligatorio";
     }
+    
     if (!message.trim()) {
-      setError("Il messaggio è obbligatorio");
+      errors.message = "Il messaggio è obbligatorio";
+    }
+    
+    if ((recipient !== "all-students" && recipient !== "all-parents" && recipient !== "all-employees") && 
+        !recipientSearch.trim()) {
+      errors.recipientSearch = "Inserisci un destinatario";
+    }
+    
+    setValidationErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      setError("Compila tutti i campi obbligatori");
       return false;
     }
+    
     setError("");
     return true;
   };
@@ -62,6 +77,14 @@ const PushNotificationDialog: React.FC<PushNotificationDialogProps> = ({ isOpen,
       // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 800));
       
+      // In a real app, you would call an API like:
+      // const response = await fetch('/api/notifications/push', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ title, message, recipient, recipientSearch, priority }),
+      // });
+      // if (!response.ok) throw new Error('Errore durante l\'invio');
+      
       setIsSending(false);
       onOpenChange(false);
       
@@ -70,6 +93,7 @@ const PushNotificationDialog: React.FC<PushNotificationDialogProps> = ({ isOpen,
       setMessage("");
       setRecipientSearch("");
       setPriority("normal");
+      setValidationErrors({});
       
       toast({
         title: "Notifica inviata",
@@ -136,13 +160,18 @@ const PushNotificationDialog: React.FC<PushNotificationDialogProps> = ({ isOpen,
                 <Label htmlFor="recipient-push" className="text-right">
                   Cerca
                 </Label>
-                <Input
-                  id="recipient-push"
-                  placeholder="Nome del destinatario o classe"
-                  className="col-span-3"
-                  value={recipientSearch}
-                  onChange={(e) => setRecipientSearch(e.target.value)}
-                />
+                <div className="col-span-3">
+                  <Input
+                    id="recipient-push"
+                    placeholder="Nome del destinatario o classe"
+                    value={recipientSearch}
+                    onChange={(e) => setRecipientSearch(e.target.value)}
+                    className={validationErrors.recipientSearch ? "border-red-500" : ""}
+                  />
+                  {validationErrors.recipientSearch && (
+                    <p className="text-red-500 text-xs mt-1">{validationErrors.recipientSearch}</p>
+                  )}
+                </div>
               </div>
             )}
             
@@ -150,27 +179,37 @@ const PushNotificationDialog: React.FC<PushNotificationDialogProps> = ({ isOpen,
               <Label htmlFor="title-push" className="text-right">
                 Titolo
               </Label>
-              <Input 
-                id="title-push" 
-                className="col-span-3" 
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+              <div className="col-span-3">
+                <Input 
+                  id="title-push"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  className={validationErrors.title ? "border-red-500" : ""}
+                />
+                {validationErrors.title && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.title}</p>
+                )}
+              </div>
             </div>
             
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="message-push" className="text-right pt-2">
                 Messaggio
               </Label>
-              <Textarea 
-                id="message-push" 
-                className="col-span-3" 
-                rows={5} 
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-              />
+              <div className="col-span-3">
+                <Textarea 
+                  id="message-push"
+                  rows={5} 
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  required
+                  className={validationErrors.message ? "border-red-500" : ""}
+                />
+                {validationErrors.message && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.message}</p>
+                )}
+              </div>
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
@@ -194,7 +233,7 @@ const PushNotificationDialog: React.FC<PushNotificationDialogProps> = ({ isOpen,
             <Button type="submit" disabled={isSending}>
               {isSending ? (
                 <>
-                  <span className="animate-pulse mr-2">⚪</span>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Invio in corso...
                 </>
               ) : (

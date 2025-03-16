@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AttendanceType } from "./constants";
 
@@ -13,8 +13,17 @@ export const useAttendanceForm = () => {
     new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
   );
   const [notes, setNotes] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Clear student selection when class changes
+    if (selectedClass) {
+      setSelectedStudent("");
+    }
+  }, [selectedClass]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
@@ -27,15 +36,51 @@ export const useAttendanceForm = () => {
       return;
     }
 
-    // Submit attendance record (mock implementation)
-    toast({
-      title: "Registrazione Salvata",
-      description: "La registrazione è stata salvata con successo.",
-    });
-
-    // Clear form
-    setSelectedStudent("");
-    setNotes("");
+    setIsSubmitting(true);
+    setApiError(null);
+    
+    try {
+      // Would be called in a real application:
+      // const response = await fetch('/api/presenze', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     studentId: selectedStudent,
+      //     type: selectedType,
+      //     date,
+      //     time: (selectedType === 'late' || selectedType === 'early-exit') ? time : undefined,
+      //     notes,
+      //   }),
+      // });
+      
+      // if (!response.ok) {
+      //   throw new Error('Errore durante il salvataggio della presenza');
+      // }
+      
+      // Simulate API call with timeout
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      
+      // Clear form
+      toast({
+        title: "Registrazione Salvata",
+        description: "La registrazione è stata salvata con successo.",
+      });
+      
+      setSelectedStudent("");
+      setNotes("");
+    } catch (error) {
+      setApiError("Si è verificato un errore durante il salvataggio della presenza. Riprova più tardi.");
+      
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return {
@@ -51,6 +96,8 @@ export const useAttendanceForm = () => {
     setTime,
     notes,
     setNotes,
+    apiError,
+    isSubmitting,
     handleSubmit,
   };
 };
