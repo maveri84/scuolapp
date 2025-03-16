@@ -25,7 +25,9 @@ import {
   Database,
   FileBox,
   MessageSquare,
-  MessageCircle
+  MessageCircle,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
@@ -41,6 +43,7 @@ interface SidebarItemProps {
   to: string;
   isAdmin?: boolean;
   children?: React.ReactNode;
+  hasChildren?: boolean;
 }
 
 const userRoles = {
@@ -50,9 +53,24 @@ const userRoles = {
   isSecretary: true
 };
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, isAdmin = false, children }) => {
+const SidebarItem: React.FC<SidebarItemProps> = ({ 
+  icon, 
+  label, 
+  to, 
+  isAdmin = false, 
+  children, 
+  hasChildren = false 
+}) => {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  const [expanded, setExpanded] = React.useState(false);
+  const isActive = location.pathname === to || (hasChildren && expanded);
+  
+  const toggleExpand = (e: React.MouseEvent) => {
+    if (hasChildren) {
+      e.preventDefault();
+      setExpanded(!expanded);
+    }
+  };
   
   if (isAdmin && !userRoles.isAdmin) {
     return null;
@@ -67,20 +85,41 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, isAdmin = fa
             ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" 
             : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
         }`}
-        asChild
+        asChild={!hasChildren}
+        onClick={hasChildren ? toggleExpand : undefined}
       >
-        <Link to={to}>
-          <span className="mr-3">{icon}</span>
-          <span>{label}</span>
-        </Link>
+        {hasChildren ? (
+          <div className="flex w-full items-center cursor-pointer">
+            <span className="mr-3">{icon}</span>
+            <span className="flex-1">{label}</span>
+            {expanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </div>
+        ) : (
+          <Link to={to}>
+            <span className="mr-3">{icon}</span>
+            <span>{label}</span>
+          </Link>
+        )}
       </Button>
-      {children}
+      {hasChildren && expanded && children}
     </li>
   );
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   const isMobile = useIsMobile();
+  const location = useLocation();
+  
+  // Close sidebar on navigation in mobile view
+  React.useEffect(() => {
+    if (isMobile && open) {
+      setOpen(false);
+    }
+  }, [location.pathname, isMobile]);
   
   return (
     <>
@@ -139,17 +178,40 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
                 )}
 
                 {(userRoles.isAdmin || userRoles.isSecretary) && (
-                  <>
-                    <SidebarItem icon={<Building className="h-5 w-5" />} label="Segreteria" to="/administration">
-                      <ul className="ml-6 mt-1 space-y-1">
-                        <SidebarItem icon={<GraduationCap className="h-5 w-5" />} label="Gestione Studenti" to="/administration" />
-                        <SidebarItem icon={<Briefcase className="h-5 w-5" />} label="Gestione Personale" to="/administration?tab=personnel" />
-                        <SidebarItem icon={<FileText className="h-5 w-5" />} label="Certificati" to="/administration?tab=certificates" />
-                        <SidebarItem icon={<FileBox className="h-5 w-5" />} label="Protocollo" to="/administration?tab=protocol" />
-                        <SidebarItem icon={<CalendarDays className="h-5 w-5" />} label="Calendario Scolastico" to="/administration?tab=calendar" />
-                      </ul>
-                    </SidebarItem>
-                  </>
+                  <SidebarItem 
+                    icon={<Building className="h-5 w-5" />} 
+                    label="Segreteria" 
+                    to="/administration"
+                    hasChildren={true}
+                  >
+                    <ul className="ml-6 mt-1 space-y-1 border-l-2 border-sidebar-border pl-2">
+                      <SidebarItem 
+                        icon={<GraduationCap className="h-5 w-5" />} 
+                        label="Gestione Studenti" 
+                        to="/administration" 
+                      />
+                      <SidebarItem 
+                        icon={<Briefcase className="h-5 w-5" />} 
+                        label="Gestione Personale" 
+                        to="/administration?tab=personnel" 
+                      />
+                      <SidebarItem 
+                        icon={<FileText className="h-5 w-5" />} 
+                        label="Certificati" 
+                        to="/administration?tab=certificates" 
+                      />
+                      <SidebarItem 
+                        icon={<FileBox className="h-5 w-5" />} 
+                        label="Protocollo" 
+                        to="/administration?tab=protocol" 
+                      />
+                      <SidebarItem 
+                        icon={<CalendarDays className="h-5 w-5" />} 
+                        label="Calendario Scolastico" 
+                        to="/administration?tab=calendar" 
+                      />
+                    </ul>
+                  </SidebarItem>
                 )}
                 
                 <SidebarItem icon={<School className="h-5 w-5" />} label="Gestione Classi" to="/classes" />
