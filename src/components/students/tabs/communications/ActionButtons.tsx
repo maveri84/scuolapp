@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Mail, MessageCircle } from "lucide-react";
 import EmailDialog from "./EmailDialog";
-import PushNotificationDialog from "@/components/messages/PushNotificationDialog";
+import { PushNotificationDialog } from "@/components/messages";
 
 interface ActionButtonsProps {
   isEmailDialogOpen: boolean;

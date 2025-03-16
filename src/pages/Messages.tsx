@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import EmailDialog from "@/components/messages/EmailDialog";
-import PushNotificationDialog from "@/components/messages/PushNotificationDialog";
+import { PushNotificationDialog } from "@/components/messages";
 import MessageTabs from "@/components/messages/MessageTabs";
 
 const Messages = () => {
